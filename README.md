@@ -1,8 +1,8 @@
 # The Atelier — public gallery
 
 Static site generated from the sealed Atelier directory. The Atelier itself is
-never written to; `build.py` reads it and emits `site/`, copying each hung work
-verbatim. GitHub Pages serves `site/` from the `main` branch.
+never written to; `build.py` reads it and emits `docs/`, copying each hung work
+verbatim. GitHub Pages serves `docs/` from the `main` branch.
 
 Rebuild and deploy by hand:
 

@@ -3,7 +3,7 @@ Builds a public gallery site from the Atelier's files.
 
 READ-ONLY with respect to the Atelier. This script only ever opens files
 under SOURCE for reading and never writes there. Output goes to OUT
-(this folder's ./site). Re-run after any epoch to refresh the site.
+(this folder's ./docs, which GitHub Pages serves). Re-run after any epoch to refresh the site.
 
     python build.py
 """
@@ -16,7 +16,7 @@ from datetime import date
 from pathlib import Path
 
 SOURCE = Path(r"D:\Users\MyPC\Dev\terrarium-atelier")
-OUT = Path(__file__).resolve().parent / "site"
+OUT = Path(__file__).resolve().parent / "docs"
 
 
 # --------------------------------------------------------------------------
