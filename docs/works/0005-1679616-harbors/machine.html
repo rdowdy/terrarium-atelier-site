@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>1,679,616 Harbors</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --ink: #1c1e22;
+    --paper: #f4f1ea;
+    --line: #c9c2b2;
+    --accent: #6b5842;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e7e2d6;
+      --paper: #14161a;
+      --line: #3a3630;
+      --accent: #cdb896;
+    }
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  }
+  main {
+    max-width: 46em;
+    margin: 0 auto;
+    padding: 3em 1.5em 5em;
+  }
+  h1 {
+    font-size: 1.3em;
+    font-weight: normal;
+    letter-spacing: 0.02em;
+    text-align: center;
+    margin: 0 0 0.2em;
+  }
+  .sub {
+    text-align: center;
+    font-size: 0.8em;
+    opacity: 0.65;
+    margin: 0 0 2.5em;
+    font-style: italic;
+  }
+  .poem {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 2em 0;
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    padding: 0.35em 0;
+  }
+  .row.gap {
+    height: 1.1em;
+  }
+  .line {
+    flex: 1;
+    font-size: 1.15em;
+    line-height: 1.5;
+  }
+  .controls {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 0.75em;
+    opacity: 0.55;
+  }
+  .row:hover .controls,
+  .controls:focus-within {
+    opacity: 1;
+  }
+  button {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 3px;
+    width: 1.6em;
+    height: 1.6em;
+    cursor: pointer;
+    font-size: 1em;
+    line-height: 1;
+  }
+  button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .tally {
+    min-width: 2.4em;
+    text-align: center;
+  }
+  .count {
+    text-align: center;
+    font-size: 0.75em;
+    opacity: 0.55;
+    margin-top: 1.3em;
+    font-family: -apple-system, system-ui, sans-serif;
+  }
+  .plate {
+    text-align: center;
+    font-size: 0.72em;
+    opacity: 0.45;
+    margin-top: 3.5em;
+    font-family: -apple-system, system-ui, sans-serif;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>1,679,616 Harbors</h1>
+  <p class="sub">eight lines, six hands each &mdash; turn any line with its own arrows</p>
+
+  <div class="poem" id="poem"></div>
+
+  <p class="count" id="count"></p>
+
+  <p class="plate">
+    A poem is not printed here. A machine is. Every arrow click swaps
+    exactly one line for one of five others that share its rhyme and
+    nothing else &mdash; no reload, no seed, no shuffle button. What you
+    read is whichever of 1,679,616 harbors your own hands assembled.
+  </p>
+</main>
+
+<script>
+const LINES = [
+  [ // 1 — rhyme A (tide)
+    "The harbor keeps no calendar but tide.",
+    "The gulls have claimed the quiet, empty side.",
+    "The last boat left before its ropes were tied.",
+    "The gap between the pilings grew too wide.",
+    "There's nowhere left for driftwood left to hide.",
+    "The ferryman is done. That was his last ride."
+  ],
+  [ // 2 — rhyme B (shore)
+    "Somebody chalked a warning on the shore.",
+    "The lighthouse keeper bolted his own door.",
+    "Salt worked its pattern into the plank floor.",
+    "They boarded up the bait and tackle store.",
+    "The tide comes further in than once before.",
+    "A bell rings out that no one will ignore."
+  ],
+  [ // 3 — rhyme A (tide)
+    "A heron takes the empty channel's glide.",
+    "No captain's left to take the harbor's pride.",
+    "The marker light still works without a guide.",
+    "The water walks the breakwater in stride.",
+    "Something under the pier has always cried.",
+    "The chart is old. The chart has been denied."
+  ],
+  [ // 4 — rhyme B (shore)
+    "The tide will not be asked to rise once more.",
+    "The dock still wears the color that it wore.",
+    "A storm came through in March and something tore.",
+    "The harbor master left the oath he swore.",
+    "No fund exists to see the pier restore.",
+    "The clock above the customs house says four."
+  ],
+  [ // 5 — rhyme C (stone)
+    "The seawall holds one loosened, leaning stone.",
+    "The buoy rings its warning bell alone.",
+    "A fishhook rusts beside a gull's white bone.",
+    "The barnacles on every post have grown.",
+    "The channel depth is no longer known.",
+    "The harbor's debt was never fully shown."
+  ],
+  [ // 6 — rhyme D (deep)
+    "The anchor chain runs somewhere far too deep.",
+    "There's little left here anyone would keep.",
+    "The lighthouse keeper's bed still holds his sleep.",
+    "The gangway to the ferry now sits steep.",
+    "The gulls above the empty slips don't weep.",
+    "The tide comes up the boat ramp in one sweep."
+  ],
+  [ // 7 — rhyme C (stone)
+    "The harbor never was, is not, its own.",
+    "The warning flag above the mast is blown.",
+    "A line someone forgot to coil is thrown.",
+    "The foghorn keeps its same mechanical moan.",
+    "The net that no one mends stays torn, not sewn.",
+    "There's nothing here that debt could still atone."
+  ],
+  [ // 8 — rhyme D (deep)
+    "The rust along the crane begins to creep.",
+    "The broken lobster traps sit in a heap.",
+    "Whatever this town sowed, the tide will reap.",
+    "The bilge below the dry-docked hull will seep.",
+    "The harbormaster's ledger lies asleep.",
+    "One gull, and then the rest, decide to leap."
+  ]
+];
+
+const state = [0, 0, 0, 0, 0, 0, 0, 0];
+const poemEl = document.getElementById("poem");
+const countEl = document.getElementById("count");
+
+function render() {
+  poemEl.innerHTML = "";
+  LINES.forEach((variants, i) => {
+    if (i === 4) {
+      const gap = document.createElement("div");
+      gap.className = "row gap";
+      poemEl.appendChild(gap);
+    }
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const line = document.createElement("div");
+    line.className = "line";
+    line.textContent = variants[state[i]];
+    row.appendChild(line);
+
+    const controls = document.createElement("div");
+    controls.className = "controls";
+
+    const prev = document.createElement("button");
+    prev.textContent = "◀";
+    prev.setAttribute("aria-label", "Previous variant of line " + (i + 1));
+    prev.onclick = () => { state[i] = (state[i] + 5) % 6; render(); };
+
+    const tally = document.createElement("span");
+    tally.className = "tally";
+    tally.textContent = (state[i] + 1) + " / 6";
+
+    const next = document.createElement("button");
+    next.textContent = "▶";
+    next.setAttribute("aria-label", "Next variant of line " + (i + 1));
+    next.onclick = () => { state[i] = (state[i] + 1) % 6; render(); };
+
+    controls.appendChild(prev);
+    controls.appendChild(tally);
+    controls.appendChild(next);
+    row.appendChild(controls);
+
+    poemEl.appendChild(row);
+  });
+
+  const index = state.reduce((acc, s) => acc * 6 + s, 0) + 1;
+  countEl.textContent = "harbor " + index.toLocaleString() + " of 1,679,616";
+}
+
+render();
+</script>
+</body>
+</html>
