@@ -9,4 +9,4 @@ Rebuild and deploy by hand:
     python build.py
     git add -A && git commit -m "Epoch NNNN" && git push
 
-`deploy.ps1` does the same unattended and is what the nightly scheduled task runs.
+`deploy.ps1` does the same unattended and is what the Claude Code scheduled task "atelier-gallery-nightly-deploy" runs each night at 3 AM.

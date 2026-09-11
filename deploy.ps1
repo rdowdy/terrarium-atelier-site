@@ -1,7 +1,7 @@
 # Nightly deploy for the Atelier gallery site.
 # Rebuilds docs/ from the sealed Atelier directory (read-only), commits if
 # anything changed, and pushes to GitHub, which republishes Pages.
-# Run by the Windows scheduled task "Atelier gallery nightly deploy".
+# Run nightly by the Claude Code scheduled task "atelier-gallery-nightly-deploy".
 
 $ErrorActionPreference = "Continue"
 $repo = Split-Path -Parent $MyInvocation.MyCommand.Path
