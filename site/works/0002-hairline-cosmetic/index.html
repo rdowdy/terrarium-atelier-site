@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hairline, Cosmetic</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #ddd6c8; }
+  canvas { display: block; position: fixed; inset: 0; }
+</style>
+</head>
+<body>
+<canvas id="w"></canvas>
+<script>
+// Hairline, Cosmetic. Atelier, Epoch 2.
+// A wall. A crack grows across it. Someone paints over it. It comes back, a little further along.
+// Everything below is deterministic: the same crack every time, one town further each return.
+
+const W = 1600, H = 1000;                 // the wall, in wall units
+const L0 = 470, DL = 125;                 // first extent; growth per return
+
+function mulberry32(a) { return function() { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ---------------------------------------------------------------- the crack, computed once
+const paths = [];
+(function makeCrack() {
+  const r = mulberry32(19);
+  // where the main crack wants to go: down at first, then a slow meander to the right and back
+  function goal(d) { return 0.78 + 0.5 * Math.sin(d / 230 + 3.5); }
+  function grow(x, y, theta, len, depth, startD) {
+    const pts = [{ x, y, d: 0 }];
+    let d = 0, th = theta, runLeft = 0;
+    const step = 3;
+    while (d < len) {
+      if (runLeft <= 0) {                       // a new straight run, with a jog at the joint
+        runLeft = 10 + r() * (depth === 0 ? 75 : 40);
+        const g = depth === 0 ? goal(d) : theta;
+        th += (r() - 0.5) * 0.75 + (g - th) * 0.4;
+      }
+      th += (r() - 0.5) * 0.04;                 // tremor
+      x += Math.cos(th) * step; y += Math.sin(th) * step; d += step; runLeft -= step;
+      pts.push({ x, y, d });
+      if (depth < 2 && d > 30 && r() < (depth === 0 ? 0.009 : 0.006)) {
+        const side = r() < 0.5 ? -1 : 1;
+        const blen = depth === 0 ? 40 + r() * 170 : 20 + r() * 60;
+        grow(x, y, th + side * (0.5 + r() * 0.65), blen, depth + 1, startD + d);
+      }
+    }
+    paths.push({ pts, start: startD, len, depth });
+  }
+  grow(470, -8, 0.9, 1460, 0, 0);
+  paths.sort((a, b) => b.depth - a.depth); // twigs under the trunk
+})();
+const MAIN = paths.find(p => p.depth === 0);
+const LMAX = MAIN.len;
+// Something hung here once. The crack goes through the place where it was.
+const GHOST = (function () {
+  const q = MAIN.pts.find(p => p.d >= 330) || MAIN.pts[MAIN.pts.length - 1];
+  const x = Math.max(40, Math.min(W - 290, q.x - 95)), y = Math.max(60, Math.min(H - 240, q.y - 78));
+  return { x, y, w: 250, h: 196 };
+})();
+function nailHole(alpha) {
+  const nx = GHOST.x + GHOST.w / 2, ny = GHOST.y - 28;
+  wc.fillStyle = 'rgba(40,30,20,' + (0.14 * alpha) + ')'; wc.beginPath(); wc.arc(nx + 1, ny + 1.5, 3.4, 0, Math.PI * 2); wc.fill();
+  wc.fillStyle = 'rgba(40,30,20,' + (0.7 * alpha) + ')'; wc.beginPath(); wc.arc(nx, ny, 2.0, 0, Math.PI * 2); wc.fill();
+}
+
+// ---------------------------------------------------------------- the wall, painted once
+const wall = document.createElement('canvas');
+const WS = 2; wall.width = W * WS; wall.height = H * WS;
+const wc = wall.getContext('2d');
+wc.setTransform(WS, 0, 0, WS, 0, 0);
+(function plaster() {
+  const r = mulberry32(3);
+  wc.fillStyle = '#e4ddd0'; wc.fillRect(0, 0, W, H);
+  // window light from the left
+  let g = wc.createLinearGradient(0, 0, W, 0);
+  g.addColorStop(0, 'rgba(255,250,240,0.16)'); g.addColorStop(0.5, 'rgba(255,250,240,0)'); g.addColorStop(1, 'rgba(60,45,30,0.10)');
+  wc.fillStyle = g; wc.fillRect(0, 0, W, H);
+  // mottling
+  for (let k = 0; k < 60; k++) {
+    const x = r() * W, y = r() * H, rad = 60 + r() * 220;
+    const gg = wc.createRadialGradient(x, y, 0, x, y, rad);
+    const dark = r() < 0.5;
+    gg.addColorStop(0, dark ? 'rgba(90,70,45,0.03)' : 'rgba(255,255,255,0.04)');
+    gg.addColorStop(1, 'rgba(0,0,0,0)');
+    wc.fillStyle = gg; wc.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  // grain
+  for (let k = 0; k < 90000; k++) {
+    const x = r() * W, y = r() * H;
+    wc.fillStyle = r() < 0.5 ? 'rgba(80,60,35,0.05)' : 'rgba(255,255,255,0.07)';
+    wc.fillRect(x, y, 0.8 + r() * 1.4, 0.8 + r() * 1.4);
+  }
+  // where something hung, and the hole its nail left
+  const G = GHOST;
+  wc.fillStyle = 'rgba(255,252,244,0.27)'; wc.fillRect(G.x, G.y, G.w, G.h);
+  wc.strokeStyle = 'rgba(70,50,25,0.13)'; wc.lineWidth = 1.6; wc.strokeRect(G.x + 0.5, G.y + 0.5, G.w, G.h);
+  wc.strokeStyle = 'rgba(70,50,25,0.05)'; wc.lineWidth = 6; wc.strokeRect(G.x - 3, G.y - 3, G.w + 6, G.h + 6);
+  nailHole(1);
+  // the dust line along the skirting
+  g = wc.createLinearGradient(0, H - 40, 0, H);
+  g.addColorStop(0, 'rgba(60,45,30,0)'); g.addColorStop(1, 'rgba(60,45,30,0.10)');
+  wc.fillStyle = g; wc.fillRect(0, H - 40, W, 40);
+})();
+
+// ---------------------------------------------------------------- paint jobs
+// eight tins, eight tenants: magnolia, a grey white, a brilliant white gone cream, a yellowed one, one with pink in it
+const TINS = ['#efe9dc', '#e8e6df', '#f1ece4', '#ebe3d4', '#eee8e1', '#e6e2d8', '#f0ebe0', '#e9e5db'];
+const jobs = {};   // cycle -> { bands:[...], committed:n }
+function extentAt(k) { return Math.min(LMAX, L0 + k * DL); }
+
+function planJob(k) {
+  if (jobs[k]) return jobs[k];
+  const r = mulberry32(1000 + k * 101);
+  const E = extentAt(k);
+  let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+  for (const p of paths) {
+    for (const q of p.pts) {
+      if (p.start + q.d > E) break;
+      if (q.x < minX) minX = q.x; if (q.x > maxX) maxX = q.x;
+      if (q.y < minY) minY = q.y; if (q.y > maxY) maxY = q.y;
+    }
+  }
+  const x0 = minX - 55 - r() * 50, x1 = maxX + 55 + r() * 50;
+  const y0 = Math.max(-30, minY - 45 - r() * 40), y1 = maxY + 45 + r() * 40;
+  const bw = 66, stepX = bw * 0.82;
+  const n = Math.max(1, Math.ceil((x1 - x0) / stepX));
+  const bands = [];
+  const tin = TINS[k % TINS.length];
+  const dripBand = Math.floor(r() * n);
+  for (let i = 0; i < n; i++) {
+    bands.push({
+      x: x0 + i * stepX + (r() - 0.5) * 6, w: bw,
+      top: y0 + (r() - 0.5) * 34, bot: y1 + (r() - 0.5) * 34,
+      tin, a: 0.94 + r() * 0.04,
+      streaks: [r(), r(), r()], drip: i === dripBand ? { at: 0.2 + r() * 0.6, len: 18 + r() * 50 } : null,
+    });
+  }
+  return (jobs[k] = { bands, committed: 0, x0, x1, y0, y1 });
+}
+
+function commitBand(b) {
+  wc.save();
+  wc.globalAlpha = b.a;
+  wc.fillStyle = b.tin;
+  const rr = 9;
+  wc.beginPath();
+  wc.moveTo(b.x + rr, b.top); wc.lineTo(b.x + b.w - rr, b.top);
+  wc.quadraticCurveTo(b.x + b.w, b.top, b.x + b.w, b.top + rr);
+  wc.lineTo(b.x + b.w, b.bot - rr);
+  wc.quadraticCurveTo(b.x + b.w, b.bot, b.x + b.w - rr, b.bot);
+  wc.lineTo(b.x + rr, b.bot);
+  wc.quadraticCurveTo(b.x, b.bot, b.x, b.bot - rr);
+  wc.lineTo(b.x, b.top + rr);
+  wc.quadraticCurveTo(b.x, b.top, b.x + rr, b.top);
+  wc.closePath(); wc.fill();
+  wc.globalAlpha = 1;
+  // roller nap: one soft streak, and a slightly heavier edge where the strokes overlap
+  const sx = b.x + 6 + b.streaks[0] * (b.w - 12);
+  wc.fillStyle = b.streaks[1] < 0.5 ? 'rgba(255,255,255,0.045)' : 'rgba(70,55,35,0.015)';
+  wc.fillRect(sx, b.top + 8, 2.5 + b.streaks[2] * 3, b.bot - b.top - 16);
+  wc.fillStyle = 'rgba(255,255,255,0.03)';
+  wc.fillRect(b.x, b.top + 6, 2, b.bot - b.top - 12);
+  if (b.drip) {
+    const dx = b.x + b.drip.at * b.w;
+    const g = wc.createLinearGradient(0, b.bot, 0, b.bot + b.drip.len);
+    g.addColorStop(0, b.tin); g.addColorStop(1, 'rgba(255,255,255,0)');
+    wc.fillStyle = g;
+    wc.beginPath();
+    wc.moveTo(dx - 2.2, b.bot - 2); wc.lineTo(dx + 2.2, b.bot - 2);
+    wc.lineTo(dx + 0.6, b.bot + b.drip.len); wc.lineTo(dx - 0.6, b.bot + b.drip.len);
+    wc.closePath(); wc.fill();
+    wc.fillStyle = 'rgba(255,255,255,0.35)'; wc.beginPath(); wc.arc(dx, b.bot + b.drip.len - 1, 1.6, 0, Math.PI * 2); wc.fill();
+  }
+  wc.restore();
+}
+function ensurePainted(k, count) {
+  const j = planJob(k);
+  count = Math.min(count, j.bands.length);
+  while (j.committed < count) {
+    commitBand(j.bands[j.committed++]);
+    // paint does not fill a nail hole
+    if (j.committed === j.bands.length) nailHole(0.45);
+  }
+}
+
+// ---------------------------------------------------------------- time
+// cycle 0: [2, 32) grow, [32,39) hold, [39,44) paint, [44,50) cured, [50,54) return.
+// then every 34s: [0,12) grow, [12,19) hold, [19,24) paint, [24,30) cured, [30,34) return.
+const T0 = 2, G0 = 30, HOLD = 7, PAINT = 5, CURE = 6, RET = 4;
+const C1 = T0 + G0 + HOLD + PAINT + CURE + RET;   // 54
+const GROW = 12, CYC = GROW + HOLD + PAINT + CURE + RET;  // 34
+
+function bursty(p, f) { // monotone growth in jerks: rate = 1 + 0.9 sin(2*pi*f*p)
+  if (p <= 0) return 0; if (p >= 1) return 1;
+  return p + 0.9 * (1 - Math.cos(2 * Math.PI * f * p)) / (2 * Math.PI * f);
+}
+
+// returns { k, extent (visible along main), alpha, clipX (or null) }
+function stateAt(t) {
+  let k, phase, p;
+  if (t < C1) {
+    k = 0;
+    const u = t - T0;
+    if (u < 0) return { k, extent: 0, alpha: 1, clipX: null };
+    if (u < G0) return { k, extent: extentAt(0) * bursty(u / G0, 4), alpha: 1, clipX: null };
+    const v = u - G0;
+    if (v < HOLD) return { k, extent: extentAt(0), alpha: 1, clipX: null };
+    if (v < HOLD + PAINT) { phase = 'paint'; p = (v - HOLD) / PAINT; }
+    else if (v < HOLD + PAINT + CURE) { phase = 'cured'; }
+    else { phase = 'return'; p = (v - HOLD - PAINT - CURE) / RET; }
+  } else {
+    const s = t - C1;
+    k = 1 + Math.floor(s / CYC);
+    const u = s - (k - 1) * CYC;
+    if (u < GROW) {
+      const a = extentAt(k - 1), b = extentAt(k);
+      return { k, extent: a + (b - a) * bursty(u / GROW, 2), alpha: 1, clipX: null };
+    }
+    const v = u - GROW;
+    if (v < HOLD) return { k, extent: extentAt(k), alpha: 1, clipX: null };
+    if (v < HOLD + PAINT) { phase = 'paint'; p = (v - HOLD) / PAINT; }
+    else if (v < HOLD + PAINT + CURE) { phase = 'cured'; }
+    else { phase = 'return'; p = (v - HOLD - PAINT - CURE) / RET; }
+  }
+  const j = planJob(k);
+  if (phase === 'paint') {
+    const n = j.bands.length;
+    const done = Math.floor(p * n);
+    ensurePainted(k, done);
+    const edge = done < n ? j.bands[done].x : Infinity;
+    return { k, extent: extentAt(k), alpha: 1, clipX: edge };
+  }
+  ensurePainted(k, j.bands.length);
+  if (phase === 'cured') return { k, extent: 0, alpha: 0, clipX: null };
+  // return: the crack comes back through the paint, faint first, from the old end outward
+  const q = p * p * (3 - 2 * p);
+  return { k: k, extent: extentAt(k) * Math.min(1, p * 1.6), alpha: 0.15 + 0.85 * q, clipX: null };
+}
+// paint jobs must be committed in order even if frames were skipped
+function catchUp(k) { for (let i = 0; i < k; i++) ensurePainted(i, planJob(i).bands.length); }
+
+// ---------------------------------------------------------------- drawing
+const canvas = document.getElementById('w');
+const ctx = canvas.getContext('2d');
+let scale = 1, ox = 0, oy = 0;
+function fit() {
+  const dpr = window.devicePixelRatio || 1;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  canvas.width = Math.round(vw * dpr); canvas.height = Math.round(vh * dpr);
+  scale = Math.max(vw / W, vh / H);
+  ox = (vw - W * scale) / 2; oy = (vh - H * scale) / 2;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function firstCycle(d) { return d <= L0 ? 0 : Math.ceil((d - L0) / DL); }
+
+function drawCrack(st) {
+  if (st.extent <= 0 || st.alpha <= 0) return;
+  ctx.save();
+  if (st.clipX != null) { ctx.beginPath(); ctx.rect(st.clipX, -50, W + 100, H + 100); ctx.clip(); }
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const p of paths) {
+    const local = st.extent - p.start;
+    if (local <= 0) continue;
+    const pts = p.pts;
+    // three passes: crumble shadow, lit lip, dark core
+    for (let pass = 0; pass < 3; pass++) {
+      for (let i = 1; i < pts.length && pts[i].d <= local; i++) {
+        const a = pts[i - 1], b = pts[i];
+        const D = p.start + b.d;
+        const age = Math.max(0, st.k - firstCycle(D));
+        const taper = p.depth === 0 ? (0.55 + 0.75 * (1 - D / LMAX)) : (0.35 + 0.35 * (1 - b.d / p.len));
+        const wdt = taper * (1 + Math.min(0.7, 0.11 * age));
+        // the tip is faint: the last 40 units fade in
+        const tipF = Math.min(1, (local - b.d) / 40 + 0.15);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+        if (pass === 0) { ctx.strokeStyle = 'rgba(60,45,30,' + (0.07 * st.alpha * tipF) + ')'; ctx.lineWidth = wdt * 4.5; }
+        else if (pass === 1) { ctx.strokeStyle = 'rgba(255,252,245,' + (0.5 * st.alpha * tipF) + ')'; ctx.lineWidth = wdt * 1.1; ctx.save(); ctx.translate(0.7, 0.8); }
+        else { ctx.strokeStyle = 'rgba(38,30,24,' + ((0.72 + Math.min(0.2, 0.05 * age)) * st.alpha * tipF) + ')'; ctx.lineWidth = wdt; }
+        ctx.stroke();
+        if (pass === 1) ctx.restore();
+      }
+    }
+  }
+  ctx.restore();
+}
+
+const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// ?t=200 opens the wall two hundred seconds in. For the patient, and for critics.
+const T_OFFSET = Math.max(0, +(new URLSearchParams(location.search).get('t') || 0)) || 0;
+let start = null;
+function frame(now) {
+  if (start === null) start = now;
+  const t = reduced ? (C1 + 5 * CYC + 3) : T_OFFSET + (now - start) / 1000;
+  const st = stateAt(t);
+  catchUp(st.k);
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(ox, oy); ctx.scale(scale, scale);
+  ctx.drawImage(wall, 0, 0, W, H);
+  drawCrack(st);
+  ctx.restore();
+  if (!reduced) requestAnimationFrame(frame);
+}
+window.addEventListener('resize', () => { fit(); if (reduced) requestAnimationFrame(frame); });
+fit();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

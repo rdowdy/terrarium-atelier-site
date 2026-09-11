@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estimated Wait</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #7a1f2b; cursor: pointer; }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Estimated Wait. Atelier, Epoch 3.
+// A waiting room. Click, tap, or press any key to begin: the room is silent
+// until then because browsers refuse to play sound without a gesture, and
+// there was no way around that, so it became part of the piece.
+// Deterministic: the carpet, the glitch schedule, and the tune are seeded.
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------------------------------------------------------------- palette
+// A waiting room, not a gallery wall: loud on purpose, four colours that
+// were never meant to share a room.
+const MUSTARD = '#d9a441', TEAL = '#1f7a72', MAROON = '#7a1f2b', CHARTREUSE = '#a3c93a', INK = '#241512';
+const PALETTE = [MUSTARD, TEAL, CHARTREUSE, '#c9632f'];
+
+// ---------------------------------------------------------------- carpet (prerendered, tiled motifs)
+let carpet = document.createElement('canvas');
+let carpetCtx = carpet.getContext('2d');
+function buildCarpet(w, h) {
+  carpet.width = w; carpet.height = h;
+  const ctx = carpetCtx;
+  ctx.fillStyle = MAROON; ctx.fillRect(0, 0, w, h);
+  const r = mulberry32(77);
+  const cell = 118;
+  for (let y = -cell; y < h + cell; y += cell) {
+    for (let x = -cell; x < w + cell; x += cell) {
+      const jx = x + (r() - 0.5) * 28, jy = y + (r() - 0.5) * 28;
+      const rot = r() * Math.PI * 2;
+      const col = PALETTE[(Math.floor(jx / 37) + Math.floor(jy / 53) + 7) % PALETTE.length];
+      const kind = r();
+      ctx.save();
+      ctx.translate(jx, jy); ctx.rotate(rot);
+      ctx.strokeStyle = INK; ctx.lineWidth = 2.4;
+      ctx.fillStyle = col;
+      if (kind < 0.55) {
+        // boomerang: two overlapping lens circles
+        const rad = 26 + r() * 14;
+        ctx.beginPath(); ctx.arc(-rad * 0.32, 0, rad, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(rad * 0.32, 0, rad * 0.72, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE[(PALETTE.indexOf(col) + 2) % PALETTE.length];
+        ctx.fill(); ctx.stroke();
+      } else {
+        // sunburst dot
+        const rad = 9 + r() * 6;
+        ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        const rays = 6 + Math.floor(r() * 3);
+        for (let k = 0; k < rays; k++) {
+          const a = (k / rays) * Math.PI * 2;
+          const len = rad * 2 + r() * 10;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a) * (rad + 3), Math.sin(a) * (rad + 3));
+          ctx.lineTo(Math.cos(a) * len, Math.sin(a) * len);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+  }
+  // a little grime so it reads as a floor, not a swatch
+  const rg = mulberry32(9001);
+  for (let k = 0; k < 12000; k++) {
+    const x = rg() * w, y = rg() * h;
+    ctx.fillStyle = rg() < 0.5 ? 'rgba(20,10,8,0.05)' : 'rgba(255,240,210,0.04)';
+    ctx.fillRect(x, y, 1 + rg() * 1.6, 1 + rg() * 1.6);
+  }
+}
+
+// ---------------------------------------------------------------- audio
+let actx = null, master = null, started = false;
+let chordGain, chordFilter, melodyGain, percGain, phoneFilter, wetGain, dryGain;
+const seed = mulberry32(514);
+
+// I - vi - IV - V, plus a fifth "wrong" bar (bV) that shows up once per loop.
+const CHORDS = [
+  { notes: [261.63, 329.63, 392.00, 587.33], wrong: false }, // C add9
+  { notes: [220.00, 261.63, 329.63], wrong: false },          // Am
+  { notes: [174.61, 220.00, 261.63], wrong: false },          // F
+  { notes: [277.18, 349.23, 415.30], wrong: true },           // Db — the wrong one
+  { notes: [196.00, 246.94, 293.66], wrong: false },          // G
+];
+const BAR = 4.0; // seconds per chord
+const MELODY = [523.25, 587.33, 659.25, 587.33, 493.88, 587.33, 523.25, 392.00]; // pentatonic-ish loop
+const STEP = 0.62;
+
+function makeVoice(freq, dest, detuneCents, type) {
+  const o = actx.createOscillator();
+  o.type = type; o.frequency.value = freq; o.detune.value = detuneCents;
+  const g = actx.createGain(); g.gain.value = 0;
+  o.connect(g).connect(dest);
+  o.start();
+  return { o, g };
+}
+
+let chordVoices = [];
+function scheduleChords(t0) {
+  let t = t0, barIndex = 0;
+  function queueBar() {
+    const chord = CHORDS[barIndex % CHORDS.length];
+    chordVoices.forEach(v => { try { v.o.stop(t + BAR + 0.1); } catch (e) {} });
+    chordVoices = chord.notes.map((f, i) => {
+      const v = makeVoice(f, chordFilter, (seed() - 0.5) * (chord.wrong ? 14 : 6), i === 0 ? 'triangle' : 'sine');
+      v.g.gain.setValueAtTime(0, t);
+      v.g.gain.linearRampToValueAtTime(0.11 / chord.notes.length, t + 0.9);
+      v.g.gain.setValueAtTime(0.11 / chord.notes.length, t + BAR - 0.9);
+      v.g.gain.linearRampToValueAtTime(0, t + BAR);
+      return v;
+    });
+    barIndex++;
+    t += BAR;
+    if (t < actx.currentTime + 20) queueBar(); else setTimeout(() => scheduleChords(t), (t - actx.currentTime - 4) * 1000);
+  }
+  queueBar();
+}
+
+let melodyStep = 0;
+function scheduleMelody(t0) {
+  let t = t0;
+  function queueNote() {
+    const f = MELODY[melodyStep % MELODY.length];
+    playMelodyNote(f, t, STEP * 0.85);
+    melodyStep++;
+    t += STEP;
+    if (t < actx.currentTime + 20) queueNote(); else setTimeout(() => scheduleMelody(t), (t - actx.currentTime - 4) * 1000);
+  }
+  queueNote();
+}
+function playMelodyNote(freq, t, dur) {
+  const o = actx.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+  const g = actx.createGain(); g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.09, t + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g).connect(melodyGain);
+  o.start(t); o.stop(t + dur + 0.05);
+  noteEvents.push(t);
+}
+
+let nextKnock = 0;
+function scheduleKnock(now) {
+  if (now < nextKnock) return;
+  const dur = 0.14 + seed() * 0.05;
+  const bufSize = Math.floor(actx.sampleRate * dur);
+  const buf = actx.createBuffer(1, bufSize, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufSize, 2.2);
+  const src = actx.createBufferSource(); src.buffer = buf;
+  const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 130 + seed() * 90; bp.Q.value = 2.2;
+  const g = actx.createGain(); g.gain.value = 0.5 + seed() * 0.25;
+  src.connect(bp).connect(g).connect(percGain);
+  src.start();
+  knockEvents.push(actx.currentTime);
+  nextKnock = now + 4.5 + seed() * 6.5;
+}
+
+let noteEvents = [], knockEvents = [];
+let nextGlitch = 0, glitchUntil = 0;
+function maybeGlitch(now) {
+  if (now < nextGlitch) return;
+  glitchUntil = now + 1.6;
+  const base = MELODY[(melodyStep - 1 + MELODY.length) % MELODY.length];
+  for (let i = 0; i < 3; i++) playMelodyNote(base * (1 + (seed() - 0.5) * 0.01), now + i * 0.14, 0.11);
+  nextGlitch = now + 55 + seed() * 45;
+}
+
+function audioTick() {
+  if (!actx) return;
+  const now = actx.currentTime;
+  scheduleKnock(now);
+  maybeGlitch(now);
+  const inGlitch = now < glitchUntil;
+  const target = inGlitch ? 1 : 0;
+  wetGain.gain.setTargetAtTime(target, now, 0.15);
+  dryGain.gain.setTargetAtTime(1 - target, now, 0.15);
+  requestAnimationFrame(audioTick);
+}
+
+function start() {
+  if (started) return;
+  started = true;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  master = actx.createGain(); master.gain.value = 0;
+  master.connect(actx.destination);
+  master.gain.linearRampToValueAtTime(0.85, actx.currentTime + 1.6);
+
+  dryGain = actx.createGain(); dryGain.gain.value = 1;
+  wetGain = actx.createGain(); wetGain.gain.value = 0;
+  phoneFilter = actx.createBiquadFilter(); phoneFilter.type = 'bandpass'; phoneFilter.frequency.value = 1400; phoneFilter.Q.value = 0.7;
+  const bus = actx.createGain();
+  bus.connect(dryGain).connect(master);
+  bus.connect(phoneFilter).connect(wetGain).connect(master);
+
+  chordFilter = actx.createBiquadFilter(); chordFilter.type = 'lowpass'; chordFilter.frequency.value = 1800;
+  chordFilter.connect(bus);
+  const lfo = actx.createOscillator(); lfo.frequency.value = 0.05;
+  const lfoGain = actx.createGain(); lfoGain.gain.value = 500;
+  lfo.connect(lfoGain).connect(chordFilter.frequency); lfo.start();
+
+  melodyGain = actx.createGain(); melodyGain.gain.value = 1;
+  const delay = actx.createDelay(1.0); delay.delayTime.value = 0.28;
+  const fb = actx.createGain(); fb.gain.value = 0.22;
+  melodyGain.connect(bus);
+  melodyGain.connect(delay).connect(fb).connect(delay); delay.connect(bus);
+
+  percGain = actx.createGain(); percGain.gain.value = 1;
+  percGain.connect(bus);
+
+  scheduleChords(actx.currentTime + 0.2);
+  scheduleMelody(actx.currentTime + 0.2);
+  requestAnimationFrame(audioTick);
+}
+window.addEventListener('pointerdown', start, { once: true });
+window.addEventListener('keydown', start, { once: true });
+
+// ---------------------------------------------------------------- visuals
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let vw, vh, dpr;
+function fit() {
+  dpr = window.devicePixelRatio || 1;
+  vw = window.innerWidth; vh = window.innerHeight;
+  canvas.width = Math.round(vw * dpr); canvas.height = Math.round(vh * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  buildCarpet(vw, vh);
+}
+window.addEventListener('resize', fit);
+fit();
+
+let t0v = null;
+let ringAngle = 0, ringPulse = 0, jitterUntil = 0;
+let lastKnockSeen = 0, lastNoteSeen = 0;
+
+function drawRing(t, cx, cy) {
+  const R = Math.min(vw, vh) * 0.14;
+  ctx.save();
+  ctx.translate(cx, cy);
+  const jitter = (started && performance.now() < jitterUntil) ? Math.sin(performance.now() * 0.09) * (reduced ? 2 : 10) : 0;
+  ctx.rotate(ringAngle + jitter * 0.02);
+  const segs = 14;
+  const pulse = 1 + ringPulse;
+  for (let i = 0; i < segs; i++) {
+    const a0 = (i / segs) * Math.PI * 2, a1 = ((i + 1) / segs) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, R * pulse, a0, a1);
+    ctx.closePath();
+    ctx.fillStyle = i % 2 === 0 ? CHARTREUSE : INK;
+    ctx.globalAlpha = 0.92;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.beginPath(); ctx.arc(0, 0, R * 0.28, 0, Math.PI * 2);
+  ctx.fillStyle = MUSTARD; ctx.fill();
+  ctx.restore();
+}
+
+function frame(now) {
+  requestAnimationFrame(frame); // scheduled first: one bad frame must never kill the loop
+  if (!vw || !vh) { fit(); if (!vw || !vh) return; }
+  if (t0v === null) t0v = now;
+  const t = (now - t0v) / 1000;
+
+  // decay pulses / knock reaction
+  ringPulse *= reduced ? 0.9 : 0.86;
+  if (started && knockEvents.length && knockEvents[knockEvents.length - 1] > lastKnockSeen) {
+    lastKnockSeen = knockEvents[knockEvents.length - 1];
+    ringPulse = reduced ? 0.06 : 0.22;
+  }
+  if (started && noteEvents.length && noteEvents[noteEvents.length - 1] > lastNoteSeen) {
+    lastNoteSeen = noteEvents[noteEvents.length - 1];
+  }
+  if (started && actx && actx.currentTime < glitchUntil) {
+    jitterUntil = performance.now() + 200;
+  }
+
+  const spin = reduced ? 0.06 : (started ? 0.35 : 0.05);
+  ringAngle += spin * (1 / 60);
+
+  ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (carpet.width > 0 && carpet.height > 0) ctx.drawImage(carpet, 0, 0, vw, vh);
+
+  // slow hue-drift glaze, subtle, never a full flash
+  const hue = (t * (reduced ? 2 : 6)) % 360;
+  ctx.fillStyle = `hsla(${hue}, 70%, 50%, 0.05)`;
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.fillRect(0, 0, vw, vh);
+  ctx.globalCompositeOperation = 'source-over';
+
+  // pre-start invite: a slow breathing halo, no words
+  if (!started) {
+    const p = 0.5 + 0.5 * Math.sin(t * 1.4);
+    ctx.beginPath();
+    ctx.arc(vw / 2, vh / 2, Math.min(vw, vh) * (0.1 + 0.01 * p), 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(36,21,18,${0.35 + 0.2 * p})`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+  drawRing(t, vw / 2, vh / 2);
+  ctx.restore();
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Left for the Next Tenant</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #d9d3c6; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; font-family: Georgia, serif; }
+  canvas { display: block; box-shadow: 0 18px 60px rgba(30,20,10,0.35); }
+  #cap {
+    position: fixed; left: 14px; bottom: 10px; font: 12px/1.4 "Courier New", monospace;
+    color: #5a5346; letter-spacing: 0.02em; user-select: none; opacity: 0.85;
+  }
+  #cap b { font-weight: normal; color: #2a2620; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="cap"></div>
+<script>
+// Left for the Next Tenant. Atelier, Epoch 1.
+// Nine notes, one room, written over one another. Everything below is deterministic.
+
+const LETTERS = [
+`To whoever gets this room.
+
+The radiator knocks twice at about four in the morning and then stops. It is not broken; I asked. The window sticks in wet weather. Lift and pull at the same time. I have left the fern because it will not survive the move and it has survived everything else. I keep trying to picture you and I keep picturing myself, which is either a failure of imagination or the whole point. Water it on Sundays.
+
+M.`,
+
+`Found your note behind the radiator. The fern was dead when I got here. I don't know how long the room stood empty. I'm leaving your note where it was because throwing it out felt rude, and I'm adding this one, though there is nothing you need to know. It's a room. The knock is the pipes cooling. Don't stand on the chair to reach the top shelf. The chair is not what it was.`,
+
+`Things about the room, in order of importance:
+1. The crack over the bed looks like a river if you squint and a hand if you don't.
+2. Two notes behind the radiator. I read them both. M., your fern is in the bin, I'm sorry. Whoever wrote the second one: it is not just a room.
+3. If you turn the lamp to face the wall the whole ceiling goes gold.
+4. The key on the hook doesn't open anything. I tried every lock in the building. I'm leaving it.
+5. I was happy here more than I expected to be. I don't know what to do with that, so I'm writing it down.`,
+
+`I have read the three notes and I will not pretend I didn't. I have lived in eleven rooms and this is the first where the previous tenants introduced themselves. I have no advice. The knock at four is real; I have lain awake for it more nights than I would admit to anyone but you. It is not always twice. Once it was seven times and I got up and put my hand on the pipe and it was warm as a person. The key opens the cupboard under the stairs on the ground floor. There is nothing in it. I checked twice, which tells you something about me.`,
+
+`We were two when we came in and I'm one going out, so I'll keep this short. Nothing to add about the radiator. She said the crack was a coastline and she named the towns along it, and I can't remember a single town now, which is the kind of thing I'm going to have to get used to. The key is on the hook. I read the notes on my first night here and again on my last, and they were different notes. If you keep them together, tie them with something. I used the cord from the blind.`,
+
+`INVENTORY. ROOM 3. ON VACATING.
+BED, SINGLE, FRAME SOUND.
+CHAIR, WOODEN, ONE LEG REPAIRED.
+LAMP, WORKING.
+CURTAINS, BLUE, FADED LEFT SIDE.
+RADIATOR, FUNCTIONAL. NOISE REPORTED BY TENANT. NO FAULT FOUND.
+CEILING, HAIRLINE CRACK, COSMETIC.
+KEY ON HOOK, UNIDENTIFIED. RETAINED.
+PAPERS BEHIND RADIATOR, FIVE. TENANT INSTRUCTED TO REMOVE.
+NOT REMOVED.
+CONDITION: FAIR.`,
+
+`I work nights, so I never heard the knock until my last week, when the shifts changed. I had started to think you'd all made it up, a joke for the new one. Then I was in bed at four and it went, twice, exactly, like someone who knows the house. I'm not going to write down what I thought. Whoever did the inventory: no fault found is correct and it is not the point. I painted over the crack. I'm sorry. It came back inside a month, same river, same hand, one town further along the coast.
+
+J.`,
+
+`Two weeks. Not the room's fault. I read all of you at once on the first night and couldn't sleep after, for reasons that were not the radiator. I have nothing to leave but I didn't want to be the one who didn't. The lamp is true. Do it once, at least. Then turn it back, so the next one can find it on their own.`,
+
+`They are pulling the building down in March, so I am the last. I have read you all in order, then out of order, then only the endings. M., the fern lasted longer than you think. The second tenant found it dead, but I found a photograph of it in the cupboard under the stairs, in a frame, green, and I don't know which of you put it there and I am not going to ask. I have put the eight notes in the frame with it, folded small, and I am putting the frame back in the cupboard and locking it, and the key goes on the hook. I'm told the hook goes too. I'm told all of it goes. Whoever you are, you will have to have got in some other way. That's all right. So did we.`
+];
+
+// Each tenant has a hand: a font, an ink, where on the page they started, and how crooked they held the paper.
+const HANDS = [
+  { font: "italic 25px Georgia, serif",                    ink: "#1f2c52", x: 120, y: 150, rot: -1.2, lh: 35, w: 760, shake: 0.9 },
+  { font: "24px 'Times New Roman', Times, serif",           ink: "#3a2a1e", x: 100, y: 250, rot:  0.8, lh: 33, w: 760, shake: 0.5 },
+  { font: "21px 'Courier New', Courier, monospace",         ink: "#2f3d2f", x:  90, y: 130, rot: -0.4, lh: 30, w: 800, shake: 0.4 },
+  { font: "24px Georgia, serif",                            ink: "#101010", x: 130, y: 470, rot:  1.6, lh: 34, w: 740, shake: 0.7 },
+  { font: "23px 'Segoe Script', 'Lucida Handwriting', Georgia, serif", ink: "#5a1f1f", x: 110, y: 720, rot: -2.1, lh: 36, w: 760, shake: 1.2 },
+  { font: "bold 18px 'Courier New', Courier, monospace",    ink: "#5c5c5c", x: 170, y:  90, rot:  0.0, lh: 26, w: 720, shake: 0.0 },
+  { font: "italic 23px Georgia, serif",                     ink: "#24384f", x:  90, y: 900, rot:  1.1, lh: 33, w: 780, shake: 0.8 },
+  { font: "italic 22px 'Times New Roman', Times, serif",    ink: "#6e6a62", x: 250, y: 1200, rot: -0.6, lh: 31, w: 640, shake: 0.6 },
+  { font: "28px Georgia, serif",                            ink: "#0b0b0b", x: 100, y: 400, rot:  0.3, lh: 41, w: 800, shake: 0.5 },
+];
+
+const PAGE_W = 1000, PAGE_H = 1400;
+const N = LETTERS.length;
+
+// Seeded randomness so every viewing is the same room.
+function mulberry32(a) { return function() { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const cap = document.getElementById('cap');
+
+// Lay each letter out as glyphs in its own coordinate space, once.
+const layers = [];
+function layout() {
+  layers.length = 0;
+  for (let i = 0; i < N; i++) {
+    const h = HANDS[i];
+    const rnd = mulberry32(1000 + i * 7919);
+    ctx.font = h.font;
+    const glyphs = [];
+    let y = 0;
+    const paras = LETTERS[i].split('\n');
+    for (const para of paras) {
+      if (para.trim() === '') { y += h.lh * 0.7; continue; }
+      const words = para.split(' ');
+      let x = 0;
+      let lineDrift = 0;
+      for (let wi = 0; wi < words.length; wi++) {
+        const word = words[wi] + (wi < words.length - 1 ? ' ' : '');
+        const ww = ctx.measureText(word).width;
+        if (x + ww > h.w && x > 0) { x = 0; y += h.lh; lineDrift = (rnd() - 0.5) * 2 * h.shake; }
+        for (const ch of word) {
+          const cw = ctx.measureText(ch).width;
+          glyphs.push({
+            ch, x: x + (rnd() - 0.5) * h.shake * 0.6,
+            y: y + lineDrift + (rnd() - 0.5) * h.shake * 1.4,
+            a: 0.72 + rnd() * 0.28,
+          });
+          x += cw;
+        }
+      }
+      y += h.lh;
+    }
+    layers.push({ glyphs, hand: h });
+  }
+}
+layout();
+
+// Paper, made once.
+const paper = document.createElement('canvas');
+paper.width = PAGE_W; paper.height = PAGE_H;
+(function makePaper() {
+  const p = paper.getContext('2d');
+  p.fillStyle = '#f4f0e6';
+  p.fillRect(0, 0, PAGE_W, PAGE_H);
+  const rnd = mulberry32(42);
+  for (let k = 0; k < 26000; k++) {
+    const x = rnd() * PAGE_W, y = rnd() * PAGE_H;
+    p.fillStyle = rnd() < 0.5 ? 'rgba(90,70,40,0.045)' : 'rgba(255,255,255,0.06)';
+    p.fillRect(x, y, 1 + rnd() * 1.5, 1 + rnd() * 1.5);
+  }
+  // A soft stain where the radiator was.
+  const g = p.createRadialGradient(820, 1180, 10, 820, 1180, 260);
+  g.addColorStop(0, 'rgba(120,90,50,0.10)');
+  g.addColorStop(1, 'rgba(120,90,50,0)');
+  p.fillStyle = g; p.fillRect(0, 0, PAGE_W, PAGE_H);
+})();
+
+// State.
+const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let count = new Array(N).fill(0);   // glyphs written per layer
+let cur = 0;                        // the layer currently on cur
+let writing = !reduced;             // animation in progress
+let pauseUntil = 0;
+let scale = 1;
+
+function fit() {
+  const dpr = window.devicePixelRatio || 1;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  scale = Math.min((vw - 24) / PAGE_W, (vh - 24) / PAGE_H);
+  canvas.style.width = (PAGE_W * scale) + 'px';
+  canvas.style.height = (PAGE_H * scale) + 'px';
+  canvas.width = Math.round(PAGE_W * scale * dpr);
+  canvas.height = Math.round(PAGE_H * scale * dpr);
+  ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
+  layout();
+  draw();
+}
+
+function weight(i) {
+  // The cur note is fully inked. Older notes sink into the paper, but never vanish.
+  if (i > cur) return 0;
+  return 0.2 + 0.8 * Math.pow(0.62, cur - i);
+}
+
+function draw() {
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  ctx.drawImage(paper, 0, 0);
+  ctx.globalCompositeOperation = 'multiply';
+  for (let i = 0; i <= cur && i < N; i++) {
+    const L = layers[i], h = L.hand, w = weight(i);
+    if (w <= 0) continue;
+    ctx.save();
+    ctx.translate(h.x, h.y);
+    ctx.rotate(h.rot * Math.PI / 180);
+    ctx.font = h.font;
+    ctx.fillStyle = h.ink;
+    ctx.textBaseline = 'alphabetic';
+    const n = Math.min(count[i], L.glyphs.length);
+    for (let k = 0; k < n; k++) {
+      const g = L.glyphs[k];
+      ctx.globalAlpha = w * g.a;
+      ctx.fillText(g.ch, g.x, g.y);
+    }
+    ctx.restore();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  caption();
+}
+
+function caption() {
+  const done = !writing;
+  const who = cur + 1;
+  cap.innerHTML = done
+    ? `<b>${who} of ${N}</b> &nbsp;&middot;&nbsp; &larr; &rarr; peel the notes back &nbsp;&middot;&nbsp; r to start again`
+    : `<b>${who} of ${N}</b> &nbsp;&middot;&nbsp; writing &nbsp;&middot;&nbsp; space to skip`;
+}
+
+let last = 0;
+function tick(t) {
+  if (writing) {
+    if (t > pauseUntil) {
+      const dt = Math.min(50, t - last);
+      const L = layers[cur];
+      const cps = 60; // characters per second
+      count[cur] = Math.min(L.glyphs.length, count[cur] + dt * cps / 1000);
+      if (count[cur] >= L.glyphs.length) {
+        if (cur < N - 1) { cur++; pauseUntil = t + 1400; }
+        else { writing = false; }
+      }
+    }
+    draw();
+  }
+  last = t;
+  requestAnimationFrame(tick);
+}
+
+function finishAll() {
+  for (let i = 0; i < N; i++) count[i] = layers[i].glyphs.length;
+  cur = N - 1; writing = false; draw();
+}
+function restart() {
+  count = new Array(N).fill(0); cur = 0; writing = true; pauseUntil = 0; draw();
+}
+function peel(d) {
+  if (writing) finishAll();
+  cur = Math.max(0, Math.min(N - 1, cur + d));
+  draw();
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); if (writing) finishAll(); }
+  else if (e.code === 'ArrowLeft' || e.code === 'ArrowUp') { e.preventDefault(); peel(-1); }
+  else if (e.code === 'ArrowRight' || e.code === 'ArrowDown') { e.preventDefault(); peel(1); }
+  else if (e.key === 'r' || e.key === 'R') restart();
+});
+canvas.addEventListener('click', (e) => {
+  const r = canvas.getBoundingClientRect();
+  peel(e.clientX - r.left < r.width / 2 ? -1 : 1);
+});
+
+window.addEventListener('resize', fit);
+fit();
+if (reduced) finishAll();
+requestAnimationFrame((t) => { last = t; tick(t); });
+</script>
+</body>
+</html>
