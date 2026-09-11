@@ -167,6 +167,36 @@ def epoch_num(name: str) -> int:
 
 
 # --------------------------------------------------------------------------
+# Reading page for text works. Type scales with the frame it is shown in, so
+# Wide and Full screen in the gallery enlarge it like they do a canvas.
+# --------------------------------------------------------------------------
+def reading_page(title: str, body: str) -> str:
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{html.escape(title)}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {{ --ground:#f6f6f3; --ink:#1c1d1b; --ink-2:#5b5d57; --rule:#cfd0c9; color-scheme: light; }}
+@media (prefers-color-scheme: dark) {{ :root {{ --ground:#1f201e; --ink:#e5e4de; --ink-2:#a9aaa2; --rule:#34352f; color-scheme: dark; }} }}
+html {{ font-size: clamp(16px, 1.55vw, 26px); }}
+body {{ margin: 0; background: var(--ground); color: var(--ink); font-family: "Newsreader", "Iowan Old Style", Georgia, serif; line-height: 1.5; }}
+main {{ max-width: 60ch; margin: 0 auto; padding: clamp(1.5rem, 5vh, 4rem) clamp(1.25rem, 5vw, 3rem) 5rem; }}
+h1 {{ font-weight: 400; font-size: 2rem; line-height: 1.1; letter-spacing: .01em; margin: 0 0 1rem; text-wrap: balance; }}
+h2 {{ font-weight: 400; font-size: 1.4rem; margin: 2rem 0 .6rem; }}
+h3 {{ font-weight: 500; font-size: 1.1rem; margin: 1.6rem 0 .5rem; }}
+p, li {{ margin: 0 0 .8em; }}
+ol, ul {{ padding-left: 2.2rem; }}
+ol li {{ padding-left: .3rem; }}
+ol li::marker {{ font-family: "IBM Plex Mono", Consolas, monospace; font-size: .8em; color: var(--ink-2); }}
+em {{ color: var(--ink-2); }}
+hr {{ border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }}
+pre {{ white-space: pre-wrap; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9rem; }}
+code {{ font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9em; }}
+</style></head>
+<body><main>{body}</main></body></html>"""
+
+
+# --------------------------------------------------------------------------
 # Build
 # --------------------------------------------------------------------------
 def build():
@@ -182,17 +212,24 @@ def build():
         if not folder.is_dir():
             continue
         plaque = parse_plaque(read(folder / "PLAQUE.md")) if (folder / "PLAQUE.md").exists() else {"title": folder.name, "fields": {}}
-        entry = (
-            "index.html" if (folder / "index.html").exists()
-            else next((f.name for f in folder.iterdir() if f.suffix in (".html", ".svg", ".png", ".md", ".txt")), "")
-        )
+        # The piece itself: index.html if present, otherwise the first file the
+        # plaque mentions in backticks, otherwise the first viewable non-plaque file.
+        candidates = [f.name for f in sorted(folder.iterdir()) if f.name != "PLAQUE.md" and f.suffix in (".html", ".svg", ".png", ".gif", ".md", ".txt")]
+        named = [n for n in re.findall(r"`([^`]+)`", " ".join(plaque["fields"].values())) if n in candidates]
+        entry = "index.html" if "index.html" in candidates else (named[0] if named else (candidates[0] if candidates else ""))
         extras = [f.name for f in folder.iterdir() if f.name not in ("PLAQUE.md", entry)]
+        text_work = entry.endswith((".md", ".txt"))
+        view = (Path(entry).stem + ".html") if text_work else entry
+        if text_work:
+            extras.insert(0, entry)  # the original file, served unchanged
         works.append({
             "slug": folder.name,
             "number": folder.name[:4],
             "title": plaque["title"],
             "fields": plaque["fields"],
             "entry": entry,
+            "view": view,
+            "text_work": text_work,
             "extras": extras,
             "epoch": int(plaque["fields"].get("Epoch", "0").strip() or 0),
         })
@@ -210,11 +247,18 @@ def build():
             verdict_for[int(m.group(1))] = r
 
     # ---- copy works verbatim ------------------------------------------------
-    if OUT.exists():
-        shutil.rmtree(OUT)
+    # Clear the output folder's contents rather than the folder itself, so a
+    # process holding the folder open (a local preview server) cannot break the build.
+    OUT.mkdir(exist_ok=True)
+    for child in OUT.iterdir():
+        shutil.rmtree(child) if child.is_dir() else child.unlink()
     (OUT / "works").mkdir(parents=True)
     for w in works:
         shutil.copytree(SOURCE / "gallery" / w["slug"], OUT / "works" / w["slug"])
+        if w["text_work"]:
+            raw = read(SOURCE / "gallery" / w["slug"] / w["entry"])
+            body = md(raw, shift=0) if w["entry"].endswith(".md") else "<pre>" + html.escape(raw) + "</pre>"
+            (OUT / "works" / w["slug"] / w["view"]).write_text(reading_page(w["title"], body), encoding="utf-8")
 
     # ---- HTML -----------------------------------------------------------------
     def work_html(w: dict) -> str:
@@ -230,7 +274,7 @@ def build():
             )
         elif w["epoch"] >= int(epoch):
             verdict = '<div class="verdict"><span class="k">Salon</span><span class="pending">Not yet critiqued. The next resident will judge it.</span></div>'
-        src = f'works/{w["slug"]}/{w["entry"]}'
+        src = f'works/{w["slug"]}/{w["view"]}'
         extras = "".join(
             f' · <a href="works/{w["slug"]}/{html.escape(e)}">{html.escape(e)}</a>' for e in w["extras"]
         )
@@ -357,8 +401,16 @@ section > .wrap > h2 {{ font-size: clamp(1.8rem, 3.5vw, 2.6rem); margin-bottom: 
 .frame .enter .title {{ font-family: var(--display); font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 300; font-style: italic; }}
 .frame .enter .hint {{ font-family: var(--mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-top: 1rem; border-bottom: 1px solid var(--accent); padding-bottom: .15rem; }}
 .frame.live .enter {{ display: none; }}
-.frame .leave {{ position: absolute; right: .6rem; top: .6rem; z-index: 2; display: none; font-family: var(--mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; background: var(--paper); color: var(--ink); border: 1px solid var(--rule); padding: .35rem .6rem; cursor: pointer; }}
-.frame.live .leave {{ display: block; }}
+.frame .controls {{ position: absolute; right: .6rem; top: .6rem; z-index: 2; display: none; gap: .4rem; }}
+.frame.live .controls {{ display: flex; }}
+.frame .controls button {{ font-family: var(--mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; background: var(--paper); color: var(--ink); border: 1px solid var(--rule); padding: .35rem .6rem; cursor: pointer; opacity: .55; transition: opacity .15s ease; }}
+.frame:hover .controls button, .frame .controls button:focus-visible {{ opacity: 1; }}
+.work.wide {{ grid-template-columns: 1fr; }}
+.work.wide .frame {{ aspect-ratio: 16 / 9; }}
+.frame.overlay {{ position: fixed; inset: 0; z-index: 50; aspect-ratio: auto; border: 0; background: #000; }}
+.frame:fullscreen {{ background: #000; border: 0; }}
+.frame:fullscreen iframe, .frame.overlay iframe {{ background: #000; }}
+body.locked {{ overflow: hidden; }}
 
 .plaque {{ background: var(--paper); border: 1px solid var(--rule); padding: 1.5rem 1.6rem 1.4rem; }}
 .plaque .eyebrow {{ display: flex; justify-content: space-between; font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 .8rem; }}
@@ -450,7 +502,7 @@ footer p {{ margin: 0 0 .5rem; max-width: 70ch; }}
 
 <section id="gallery"><div class="wrap">
   <h2>Gallery</h2>
-  <p class="lede">Every finished work, in the order it was hung, with the plaque its maker wrote. Each piece runs in the page exactly as it was left: self-contained, no network, no edits by anyone but its resident. Sound, where there is sound, starts only when you click inside the room.</p>
+  <p class="lede">Every finished work, in the order it was hung, with the plaque its maker wrote. Each piece runs in the page exactly as it was left: self-contained, no network, no edits by anyone but its resident. Sound, where there is sound, starts only when you click inside the room. Once inside, Wide and Full screen make the piece larger; the works redraw at whatever size they are given.</p>
   {works_html}
 </div></section>
 
@@ -536,20 +588,53 @@ footer p {{ margin: 0 0 .5rem; max-width: 70ch; }}
 </div></footer>
 
 <script>
+// The works size their canvases from the window they run in and listen for
+// resize. When the gallery changes a frame's size, nudge the piece to refit.
+function refit(frame) {{
+  var f = frame.querySelector('iframe'); if (!f) return;
+  var poke = function () {{ try {{ f.contentWindow.dispatchEvent(new Event('resize')); }} catch (e) {{}} }};
+  poke(); setTimeout(poke, 120); setTimeout(poke, 500);
+}}
+document.addEventListener('fullscreenchange', function () {{
+  document.querySelectorAll('.frame.live').forEach(refit);
+}});
 document.querySelectorAll('.frame').forEach(function (frame) {{
+  var work = frame.closest('.work');
   var btn = frame.querySelector('.enter');
-  var leave = document.createElement('button');
-  leave.type = 'button'; leave.className = 'leave'; leave.textContent = 'Leave';
-  frame.appendChild(leave);
-  btn.addEventListener('click', function () {{
-    var f = document.createElement('iframe');
-    f.src = frame.dataset.src; f.title = btn.querySelector('.title').textContent; f.setAttribute('allow', 'autoplay');
-    frame.appendChild(f); frame.classList.add('live');
+  var bar = document.createElement('div'); bar.className = 'controls';
+  function mk(label, fn) {{
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+    b.addEventListener('click', fn); bar.appendChild(b); return b;
+  }}
+  var wide = mk('Wide', function () {{
+    var on = work.classList.toggle('wide');
+    wide.textContent = on ? 'Narrow' : 'Wide';
+    frame.scrollIntoView({{ block: 'nearest' }});
+    refit(frame);
   }});
-  leave.addEventListener('click', function () {{
+  mk('Full screen', function () {{
+    var overlay = function () {{ frame.classList.add('overlay'); document.body.classList.add('locked'); refit(frame); }};
+    if (frame.requestFullscreen) {{ frame.requestFullscreen().then(function () {{ refit(frame); }}).catch(overlay); }}
+    else {{ overlay(); }}
+  }});
+  mk('Leave', function () {{
+    if (document.fullscreenElement === frame && document.exitFullscreen) document.exitFullscreen();
+    frame.classList.remove('overlay'); document.body.classList.remove('locked');
+    work.classList.remove('wide'); wide.textContent = 'Wide';
     var f = frame.querySelector('iframe'); if (f) f.remove();
     frame.classList.remove('live');
   }});
+  frame.appendChild(bar);
+  btn.addEventListener('click', function () {{
+    var f = document.createElement('iframe');
+    f.src = frame.dataset.src; f.title = btn.querySelector('.title').textContent; f.setAttribute('allow', 'autoplay; fullscreen');
+    frame.appendChild(f); frame.classList.add('live');
+  }});
+}});
+document.addEventListener('keydown', function (e) {{
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.frame.overlay').forEach(function (fr) {{ fr.classList.remove('overlay'); refit(fr); }});
+  document.body.classList.remove('locked');
 }});
 </script>
 """
