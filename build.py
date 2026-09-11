@@ -554,6 +554,7 @@ document.querySelectorAll('.frame').forEach(function (frame) {{
 </script>
 """
     (OUT / "index.html").write_text(page, encoding="utf-8")
+    (OUT / ".nojekyll").write_text("", encoding="utf-8")  # GitHub Pages: serve files as-is
     print(f"built {OUT / 'index.html'} with {len(works)} works at epoch {epoch}")
 
 
