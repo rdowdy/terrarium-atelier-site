@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whoever Touched It Last</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --ground:#f6f6f3; --ink:#1c1d1b; --ink-2:#5b5d57; --rule:#cfd0c9; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --ground:#1f201e; --ink:#e5e4de; --ink-2:#a9aaa2; --rule:#34352f; color-scheme: dark; } }
+html { font-size: clamp(16px, 1.55vw, 26px); }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: "Newsreader", "Iowan Old Style", Georgia, serif; line-height: 1.5; }
+main { max-width: 60ch; margin: 0 auto; padding: clamp(1.5rem, 5vh, 4rem) clamp(1.25rem, 5vw, 3rem) 5rem; }
+h1 { font-weight: 400; font-size: 2rem; line-height: 1.1; letter-spacing: .01em; margin: 0 0 1rem; text-wrap: balance; }
+h2 { font-weight: 400; font-size: 1.4rem; margin: 2rem 0 .6rem; }
+h3 { font-weight: 500; font-size: 1.1rem; margin: 1.6rem 0 .5rem; }
+p, li { margin: 0 0 .8em; }
+ol, ul { padding-left: 2.2rem; }
+ol li { padding-left: .3rem; }
+ol li::marker { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .8em; color: var(--ink-2); }
+em { color: var(--ink-2); }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
+pre { white-space: pre-wrap; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9rem; }
+code { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9em; }
+</style></head>
+<body><main><h1>Whoever Touched It Last</h1>
+<p><em>A second way to read the board in Nine Posts (gallery/0009), tested against a dispute Nine Posts never had to settle. This page is complete on its own — nothing here requires having seen the first.</em></p>
+<h2>The board, restated</h2>
+<p>Nine posts, evenly spaced along a boundary. Each of two households keeps pebbles in its own color; at the start, one pebble from each sits touching at the foot of every post. The households alternate turns. On a turn, a household does exactly one of three things:</p>
+<ul><li><strong>ADVANCE</strong> — lift one of its own pebbles from any post and set it one further stride past that post, onto the other household's side.</li><li><strong>YIELD</strong> — lift one of its own pebbles that has already crossed a post and set it back at the foot.</li><li><strong>HOLD</strong> — kneel at any one post and say aloud whose ground it is. Nothing moves.</li></ul>
+<p>A household may only ever touch its own pebbles. The dispute ends the instant one household HOLDs and the other HOLDs right after it, or at the fortieth turn, whichever comes first.</p>
+<p>Everything above is unchanged from Nine Posts. What follows is not. That piece closed each post by <strong>Distance</strong>: whichever pebble had moved furthest from the post won it. It never said why distance should be the thing that counts, and — this matters — neither of its two transcripts ever put both households' pebbles on the same post at once. The rule was never actually tested against a real contest. This piece builds one, and reads it two ways.</p>
+<h2>Two ways to close a post</h2>
+<p><strong>Rule A — Distance.</strong> At a post, the line follows whichever pebble has moved furthest from it, regardless of when. A post neither pebble has left returns to the middle, no matter what was said kneeling there.</p>
+<p><strong>Rule B — Last Touch.</strong> At a post, the line follows whichever household most recently ADVANCEd there — not how far, only who moved last. A YIELD at a post empties it back to neutral until someone advances there again. A post no one has touched returns to the middle, same as Rule A.</p>
+<p>Both rules are stated in full above. Neither is applied yet.</p>
+<h2>One dispute, run once</h2>
+<p>Nine posts, two households: Voss and Nkemelu. Voss goes first.</p>
+<ol><li>Voss <strong>ADVANCE</strong> at post 4.</li><li>Nkemelu <strong>ADVANCE</strong> at post 7.</li><li>Voss <strong>ADVANCE</strong> at post 4, again.</li><li>Nkemelu <strong>ADVANCE</strong> at post 2.</li><li>Voss <strong>HOLD</strong> at post 9 — "Voss ground."</li><li>Nkemelu <strong>ADVANCE</strong> at post 4.</li><li>Voss <strong>HOLD</strong> at post 1 — "Voss ground."</li><li>Nkemelu <strong>HOLD</strong> at post 6 — "Nkemelu ground."</li></ol>
+<p>Two HOLDs in a row. The dispute ends at turn eight. That is the whole of what happened. One turn log. Read it twice, below.</p>
+<h2>Reading it under Rule A — Distance</h2>
+<div class="tablewrap"><table><thead><tr><th>Post</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead><tbody><tr><td>Disp</td><td>0</td><td>−1</td><td>0</td><td>+2</td><td>0</td><td>0</td><td>−1</td><td>0</td><td>0</td></tr></tbody></table></div>
+<p>Post 4: Voss advanced twice — two strides out — before Nkemelu ever touched it, once, the other way. Two strides beats one. Voss holds post 4.</p>
+<h2>Reading it under Rule B — Last Touch</h2>
+<div class="tablewrap"><table><thead><tr><th>Post</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead><tbody><tr><td>Who</td><td>·</td><td>N</td><td>·</td><td>N</td><td>·</td><td>·</td><td>N</td><td>·</td><td>·</td></tr></tbody></table></div>
+<p>Post 4: how far anyone got first doesn't matter here. Nkemelu's single, late touch at turn six is the last thing that happened at that post — so Nkemelu holds it. The same post. The same three moves, in the same order. Opposite household.</p>
+<h2>What doesn't move</h2>
+<p>Posts 1, 3, 5, 6, 8, 9: nobody's pebble ever left the middle at any of them, so both rules send the line down the middle at all six, exactly as Nine Posts already established for posts nobody touched. The two conventions only disagree where there is something to disagree about — and at the one post where that happens, they don't just phrase the same answer differently. They hand the ground to different people.</p>
+<hr>
+<p>Nine Posts picked Distance and never argued for it over anything else. This piece doesn't argue that Last Touch is better, or worse. It only shows that the choice between them was never neutral, and that nobody in this gallery had checked, until now, whether it mattered.</p></main></body></html>

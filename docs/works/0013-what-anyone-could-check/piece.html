@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>What Anyone Could Check</title>
+<style>
+  :root {
+    --ink: #2b2620;
+    --paper: #efe8d8;
+    --rule: #c2b797;
+    --faint: #6b6350;
+    --mark: #7a3b2e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 4em 1.5em 6em;
+    line-height: 1.7;
+    font-size: 18px;
+  }
+  h1 {
+    font-size: 1.9em;
+    font-weight: normal;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.15em;
+  }
+  .subtitle {
+    font-style: italic;
+    color: var(--faint);
+    margin-top: 0;
+    margin-bottom: 2.6em;
+    font-size: 1.02em;
+  }
+  p { margin: 1.1em 0; }
+  .letter {
+    margin: 2em 0;
+    padding: 1.6em 1.8em;
+    border: 1px solid var(--rule);
+    background: rgba(0,0,0,0.02);
+    font-size: 0.98em;
+  }
+  .letter .salutation { margin-top: 0; }
+  .letter .sign {
+    margin-bottom: 0;
+    font-style: italic;
+    text-align: right;
+  }
+  .transition {
+    margin: 2.4em 0 1.8em;
+  }
+  .ledger-title {
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78em;
+    color: var(--faint);
+    margin-bottom: 0.4em;
+  }
+  .ledger-note {
+    font-size: 0.86em;
+    color: var(--faint);
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1.6em;
+    font-style: italic;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 0.6em;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.94em;
+  }
+  th, td {
+    border: 1px solid var(--rule);
+    padding: 0.5em 0.6em;
+    text-align: center;
+  }
+  th {
+    background: rgba(0,0,0,0.04);
+    font-weight: normal;
+  }
+  colgroup .a { }
+  tr.total td, tr.total th {
+    font-weight: bold;
+    background: rgba(0,0,0,0.05);
+  }
+  .footnotes {
+    font-size: 0.86em;
+    color: var(--faint);
+    margin: 0.6em 0 2em;
+  }
+  .footnotes li { margin-bottom: 0.4em; }
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 2.6em 0;
+  }
+  .closing {
+    margin-top: 2em;
+  }
+  footer {
+    margin-top: 3.5em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--rule);
+    font-size: 0.85em;
+    color: var(--faint);
+  }
+</style>
+</head>
+<body>
+
+<h1>What Anyone Could Check</h1>
+<p class="subtitle">Birchfold Cooperative's harvest ledger has hung in the meeting hall for eleven years, chained to a nail by its spine so it can't walk off during an argument. Only one page in it has ever needed defending.</p>
+
+<p>By the bylaw agreed at the cooperative's founding, whichever household logs the most hours of labor in a shared row across a season holds first claim on that row's yield the following year. This season, both the Ashworth and the Vane households worked Row 7, and both asked the Tallykeeper to rule.</p>
+
+<div class="letter">
+<p class="salutation">To the members of Birchfold Cooperative,</p>
+<p>I have kept this ledger for eleven harvests, and it has never once needed me to raise my voice. This year it does.</p>
+<p>Row 7 is contested. I have gone through the ledger line by line, the same ledger any of you may open at the hall on any evening you like, Sabbath excepted. Neman Ashworth logged twenty hours in Row 7 this season. Coral Vane logged eighteen. Twenty is more than eighteen. I am ruling for the Ashworth household, and I am putting it in writing so nobody has to ask me to say it twice.</p>
+<p>I know this will not please everyone. It does not need to. The hours are the hours, and anyone can check them.</p>
+<p class="sign">&mdash; Marta Coe, Tallykeeper</p>
+</div>
+
+<p class="transition">The ledger she cited is exactly as public as she said. It is also more detailed than her letter let on.</p>
+
+<p class="ledger-title">Row 7 &middot; Season Ledger</p>
+<p class="ledger-note">A note in Marta's hand sits atop this page of the ledger, unchanged since before she held the pen: hours are self-logged by each household at week's end; a second column records hours witnessed by another cooperative member present in the row, kept for the cooperative's injury insurance, and not, the note specifies, for yield rulings.</p>
+
+<table>
+<colgroup><col><col><col><col><col></colgroup>
+<tr><th></th><th colspan="2">Ashworth</th><th colspan="2">Vane</th></tr>
+<tr><th>Week</th><th>logged</th><th>witnessed</th><th>logged</th><th>witnessed</th></tr>
+<tr><td>1</td><td>4</td><td>4</td><td>3</td><td>3</td></tr>
+<tr><td>2</td><td>5</td><td>2</td><td>4</td><td>4</td></tr>
+<tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+<tr><td>4</td><td>6</td><td>2</td><td>4</td><td>4</td></tr>
+<tr><td>5</td><td>2</td><td>2</td><td>4</td><td>4</td></tr>
+<tr class="total"><td>Total</td><td>20</td><td>13</td><td>18</td><td>18</td></tr>
+</table>
+<ul class="footnotes">
+<li>Week 2, Ashworth: three of the five hours logged were before first light. Neman works Row 7 alone most mornings now &mdash; his son took a post two towns over last spring, and nobody else in the house rises that early.</li>
+<li>Week 4, Ashworth: four of the six hours logged were past dusk, again alone.</li>
+<li>Every hour Coral Vane logged in Row 7 this season was witnessed. She works the row with her sister most days, so nearly everything she does there already has two names beside it, whether the ledger asks for a second name or not.</li>
+</ul>
+
+<hr>
+
+<p class="closing">Nothing in Marta's letter is false. Ashworth logged twenty hours; Vane logged eighteen; twenty is more than eighteen, and the ledger has always been open at the hall for anyone who wanted to add it herself. The bylaw asks about logged hours, not witnessed ones &mdash; it always has, since before Marta held the pen. The witnessed column sits one space to the right of the logged column, in the same hand, on the same page, kept for a wholly different reason. It was never hers to close the case with. It was also never kept from anyone's sight.</p>
+<p class="closing">Coral Vane says she has not opened the ledger since the ruling. Neman Ashworth says he opens it every year, to the same page, and reads only the left-hand column.</p>
+
+<footer>
+Birchfold Cooperative, Row 7, and every name on this page are invented for this piece. The arithmetic is not: 4+5+3+6+2 = 20, 4+2+3+2+2 = 13, 3+4+3+4+4 = 18 twice over.
+</footer>
+
+</body>
+</html>

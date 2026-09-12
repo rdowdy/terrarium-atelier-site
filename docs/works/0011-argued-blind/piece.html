@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Argued Blind</title>
+<style>
+  :root {
+    --ink: #241f18;
+    --paper: #f4efe4;
+    --rule: #b8ad95;
+    --accent-v: #6b3a2a;
+    --accent-n: #2a4a4a;
+    --seal: #8a2e2e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3em 1.5em 6em;
+    line-height: 1.6;
+    font-size: 18px;
+  }
+  h1 {
+    font-size: 2em;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.1em;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.3em;
+  }
+  .subtitle {
+    font-style: italic;
+    color: #55503f;
+    margin-top: 0;
+    margin-bottom: 2em;
+  }
+  h2 {
+    margin-top: 2.4em;
+    font-size: 1.25em;
+    border-top: 1px solid var(--rule);
+    padding-top: 1em;
+  }
+  .rule-block {
+    background: rgba(0,0,0,0.03);
+    border-left: 3px solid var(--rule);
+    padding: 0.9em 1.2em;
+    margin: 1em 0;
+  }
+  .rule-block b { display: block; margin-bottom: 0.3em; }
+  .jurist {
+    margin: 1.6em 0;
+    padding: 1.2em 1.4em;
+    border-radius: 2px;
+  }
+  .jurist.distance { border-left: 4px solid var(--accent-v); background: rgba(107,58,42,0.06); }
+  .jurist.lasttouch { border-left: 4px solid var(--accent-n); background: rgba(42,74,74,0.06); }
+  .jurist-name {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.82em;
+    margin-bottom: 0.5em;
+    color: #443f33;
+  }
+  .ruling-box {
+    text-align: center;
+    margin: 2.6em 0;
+    padding: 1.8em;
+    border: 1px dashed var(--rule);
+  }
+  .ruling-box p { margin-top: 0; font-style: italic; }
+  button {
+    font-family: inherit;
+    font-size: 1em;
+    padding: 0.7em 1.3em;
+    margin: 0.4em;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  button:hover { background: var(--ink); color: var(--paper); }
+  #rule-distance { border-color: var(--accent-v); }
+  #rule-distance:hover { background: var(--accent-v); color: var(--paper); }
+  #rule-lasttouch { border-color: var(--accent-n); }
+  #rule-lasttouch:hover { background: var(--accent-n); color: var(--paper); }
+  [hidden] { display: none !important; }
+  .seal-broken {
+    text-align: center;
+    color: var(--seal);
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    margin-bottom: 1.2em;
+  }
+  .verdict-name {
+    text-align: center;
+    font-size: 1.15em;
+    margin-bottom: 1.6em;
+  }
+  .verdict-name .chosen { font-weight: bold; }
+  .chosen.distance { color: var(--accent-v); }
+  .chosen.lasttouch { color: var(--accent-n); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0 1.6em;
+    font-variant-numeric: tabular-nums;
+  }
+  th, td {
+    border: 1px solid var(--rule);
+    padding: 0.4em 0.5em;
+    text-align: center;
+  }
+  th { background: rgba(0,0,0,0.05); font-weight: normal; }
+  .V { color: var(--accent-v); font-weight: bold; }
+  .N { color: var(--accent-n); font-weight: bold; }
+  ol.log li { margin-bottom: 0.35em; }
+  #compare-btn { display: block; margin: 1.6em auto 0; }
+  #comparison { margin-top: 1.6em; padding-top: 1.6em; border-top: 1px solid var(--rule); }
+  footer {
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--rule);
+    font-size: 0.9em;
+    color: #55503f;
+  }
+</style>
+</head>
+<body>
+
+<h1>Argued Blind</h1>
+<p class="subtitle">A ruling made before the record is opened. This page is complete on its own — nothing here requires having seen an earlier piece.</p>
+
+<h2>The record, sealed</h2>
+<p>
+Two households, Voss and Nkemelu, have a boundary again. Nine posts, evenly
+spaced. At the start, one pebble from each household sits touching at the
+foot of every post — a line straight down the middle of each pair. On a
+turn, a household does exactly one of three things to one of its own
+pebbles, never the other's:
+</p>
+<div class="rule-block">
+<b>ADVANCE</b> — lift a pebble from its post and set it one stride further
+past that post, onto the other household's side.<br><br>
+<b>YIELD</b> — lift a pebble that has already crossed a post and set it
+back at the foot.<br><br>
+<b>HOLD</b> — kneel at a post and say aloud whose ground it is. Nothing
+moves.
+</div>
+<p>
+The households alternate turns. The dispute ends the instant one household
+HOLDs and the other HOLDs right after it, or at the fortieth turn,
+whichever comes first.
+</p>
+<p>
+This dispute has already happened. Eleven turns were played, a clerk wrote
+them down, and the paper went into an envelope before either household's
+lawyer read it. <b>Nobody in this room has seen it. You haven't either.</b>
+</p>
+<p>
+What the two households have agreed on, in advance, is this: before the
+envelope opens, a ruling will be made on how to read whatever is inside —
+by <b>Distance</b> or by <b>Last Touch</b>. Two jurists, one retained by
+each household, have argued for a rule without being shown the record they
+would be applying it to. Neither knows which rule will help their own
+client. That was the condition of being allowed to argue at all.
+</p>
+
+<h2>Two rules, argued for in full ignorance of the facts</h2>
+<div class="rule-block">
+<b>Rule A — Distance.</b> At a post, the line follows whichever pebble
+currently sits furthest from it, on either side. A YIELD returns a pebble
+to the foot; from there it counts as zero until advanced again. A post
+neither pebble has left, or where both have returned to the foot, sits at
+the middle.
+</div>
+<div class="rule-block">
+<b>Rule B — Last Touch.</b> At a post, the line follows whichever
+household most recently ADVANCEd there. A YIELD empties the post back to
+the middle until someone advances there again. Distance travelled does not
+matter, only who acted last.
+</div>
+
+<div class="jurist distance">
+<div class="jurist-name">Jurist for Distance</div>
+<p>
+"A boundary is not made by who spoke last but by who worked longest to
+hold it. Every stride a household advances is a turn spent in the open,
+a risk the other side could have answered and didn't. Distance rewards
+accumulated exposure — a pebble two strides out has survived two turns
+the opposing household chose not to contest. Last Touch lets one late
+move erase that whole record, treating a sustained advance and a single
+tardy response as though they carried equal weight. A rule that forgets
+everything the moment someone acts last is not a memory of the dispute.
+It is an eraser wearing a ruler's clothes."
+</p>
+</div>
+
+<div class="jurist lasttouch">
+<div class="jurist-name">Jurist for Last Touch</div>
+<p>
+"Distance asks the line to hold a position nobody is still defending. A
+household that advances early and then walks away is asking history to
+count for more than presence. Last Touch asks a harder, simpler question:
+as of the moment the argument stopped, who was actually standing there?
+A late move is not tardiness — it is the most recent evidence available,
+made with full knowledge of everything that came before it, including how
+far the other side had already gone. Distance rewards whoever moved first
+and fastest, which turns a boundary into a race. Last Touch rewards
+whoever was paying attention last, which is the only fact a court can
+still verify without asking the ground to remember what it can no longer
+show."
+</p>
+</div>
+
+<div class="ruling-box" id="ruling-prompt">
+<p>You are the arbiter. Read both arguments again if you want to. Then rule — before the envelope opens, not after.</p>
+<button id="rule-distance" onclick="commit('distance')">Rule for Distance</button>
+<button id="rule-lasttouch" onclick="commit('lasttouch')">Rule for Last Touch</button>
+</div>
+
+<div id="result" hidden>
+<div class="seal-broken">The seal is broken.</div>
+<div class="verdict-name">You ruled for <span id="chosen-name" class="chosen"></span>, before you knew what it would cost or spare.</div>
+
+<h2>The record</h2>
+<ol class="log">
+<li>Nkemelu ADVANCEs at post 6.</li>
+<li>Voss ADVANCEs at post 2.</li>
+<li>Nkemelu ADVANCEs at post 6, again.</li>
+<li>Voss ADVANCEs at post 6.</li>
+<li>Nkemelu YIELDs at post 6 — the far pebble comes back to the foot.</li>
+<li>Voss ADVANCEs at post 6, again.</li>
+<li>Nkemelu ADVANCEs at post 6, a third time, from the foot.</li>
+<li>Voss HOLDs at post 9 — "Voss ground."</li>
+<li>Nkemelu ADVANCEs at post 4.</li>
+<li>Voss HOLDs at post 1 — "Voss ground."</li>
+<li>Nkemelu HOLDs at post 5 — "Nkemelu ground."</li>
+</ol>
+<p>Two HOLDs in a row. The dispute ended at turn eleven.</p>
+
+<p>Only post 6 was ever touched by both households. Posts 2 and 4 were touched by one household each, once. Posts 1, 5, and 9 were only knelt at. Posts 3, 7, and 8 were never touched at all.</p>
+
+<h3 id="table-heading">Reading it under your ruling</h3>
+<table id="chosen-table"></table>
+
+<button id="compare-btn" onclick="showComparison()">See what the other ruling would have done</button>
+
+<div id="comparison" hidden>
+<h3 id="other-heading"></h3>
+<table id="other-table"></table>
+<p id="closing-line"></p>
+</div>
+</div>
+
+<footer>
+Voss appears in blue-brown, Nkemelu in blue-green, at every post either one ever reached.
+</footer>
+
+<script>
+var posts = [1,2,3,4,5,6,7,8,9];
+
+// current displacement at end of record: + = Voss, - = Nkemelu, 0 = untouched or returned to foot by both
+var distanceHolder = {
+  1: null, 2: 'V', 3: null, 4: 'N', 5: null, 6: 'V', 7: null, 8: null, 9: null
+};
+var distanceValue = {
+  1: 0, 2: 1, 3: 0, 4: 1, 5: 0, 6: 2, 7: 0, 8: 0, 9: 0
+};
+// last household to ADVANCE at each post (null = never advanced, or emptied by a YIELD with no advance since)
+var lastTouchHolder = {
+  1: null, 2: 'V', 3: null, 4: 'N', 5: null, 6: 'N', 7: null, 8: null, 9: null
+};
+
+function buildTable(holderMap, label) {
+  var html = '<tr><th>Post</th>';
+  posts.forEach(function(p){ html += '<th>' + p + '</th>'; });
+  html += '</tr><tr><th>' + label + '</th>';
+  posts.forEach(function(p){
+    var h = holderMap[p];
+    if (h === 'V') html += '<td class="V">Voss</td>';
+    else if (h === 'N') html += '<td class="N">Nkemelu</td>';
+    else html += '<td>middle</td>';
+  });
+  html += '</tr>';
+  return html;
+}
+
+var chosenRule = null;
+
+function commit(rule) {
+  chosenRule = rule;
+  document.getElementById('ruling-prompt').hidden = true;
+  var name = document.getElementById('chosen-name');
+  var table = document.getElementById('chosen-table');
+  var heading = document.getElementById('table-heading');
+  if (rule === 'distance') {
+    name.textContent = 'Distance';
+    name.className = 'chosen distance';
+    heading.textContent = 'Reading it under Distance';
+    table.innerHTML = buildTable(distanceHolder, 'Holder');
+  } else {
+    name.textContent = 'Last Touch';
+    name.className = 'chosen lasttouch';
+    heading.textContent = 'Reading it under Last Touch';
+    table.innerHTML = buildTable(lastTouchHolder, 'Holder');
+  }
+  document.getElementById('result').hidden = false;
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function showComparison() {
+  var otherRule = chosenRule === 'distance' ? 'lasttouch' : 'distance';
+  var heading = document.getElementById('other-heading');
+  var table = document.getElementById('other-table');
+  var closing = document.getElementById('closing-line');
+  if (otherRule === 'distance') {
+    heading.textContent = 'What Distance would have done instead';
+    table.innerHTML = buildTable(distanceHolder, 'Holder');
+  } else {
+    heading.textContent = 'What Last Touch would have done instead';
+    table.innerHTML = buildTable(lastTouchHolder, 'Holder');
+  }
+  closing.textContent = 'Every post agrees between the two readings except one. At post 6, Distance hands the ground to Voss — two strides out beats one. Last Touch hands the same ground to Nkemelu — the last hand on it, turn seven, after Voss\'s turn six. Same eleven turns. Same post. Opposite household. You ruled on the method before either fact existed for you. The method decided the rest.';
+  document.getElementById('comparison').hidden = false;
+  document.getElementById('compare-btn').hidden = true;
+  document.getElementById('comparison').scrollIntoView({behavior:'smooth'});
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Reason You Gave</title>
+<style>
+  :root {
+    --ink: #24211c;
+    --paper: #f2ede1;
+    --rule: #b3a88f;
+    --barrow: #8a6d1f;
+    --quintal: #5b3b74;
+    --audit: #6b2020;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3em 1.5em 6em;
+    line-height: 1.6;
+    font-size: 18px;
+  }
+  h1 {
+    font-size: 2em;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.1em;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.3em;
+  }
+  .subtitle { font-style: italic; color: #524d3f; margin-top: 0; margin-bottom: 2em; }
+  h2 { margin-top: 2.4em; font-size: 1.25em; border-top: 1px solid var(--rule); padding-top: 1em; }
+  h3 { margin-top: 1.6em; font-size: 1.05em; }
+  .rule-block {
+    background: rgba(0,0,0,0.03);
+    border-left: 3px solid var(--rule);
+    padding: 0.9em 1.2em;
+    margin: 1em 0;
+  }
+  .rule-block b { display: block; margin-bottom: 0.3em; }
+  .honesty {
+    margin: 1.4em 0;
+    padding: 0.9em 1.2em;
+    border-left: 3px solid var(--audit);
+    background: rgba(107,32,32,0.05);
+    font-size: 0.95em;
+  }
+  .advocate {
+    margin: 1.6em 0;
+    padding: 1.2em 1.4em;
+    border-radius: 2px;
+  }
+  .advocate.barrow { border-left: 4px solid var(--barrow); background: rgba(138,109,31,0.07); }
+  .advocate.quintal { border-left: 4px solid var(--quintal); background: rgba(91,59,116,0.07); }
+  .advocate-name {
+    font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em;
+    font-size: 0.82em; margin-bottom: 0.5em; color: #443f33;
+  }
+  .commit-box {
+    text-align: center; margin: 2.6em 0; padding: 1.8em; border: 1px dashed var(--rule);
+  }
+  .commit-box p { margin-top: 0; font-style: italic; }
+  button {
+    font-family: inherit; font-size: 1em; padding: 0.7em 1.3em; margin: 0.4em;
+    border: 2px solid var(--ink); background: var(--paper); color: var(--ink);
+    cursor: pointer; border-radius: 2px; max-width: 260px;
+  }
+  button:hover { background: var(--ink); color: var(--paper); }
+  #hold-distance { border-color: var(--barrow); }
+  #hold-distance:hover { background: var(--barrow); color: var(--paper); }
+  #hold-lasttouch { border-color: var(--quintal); }
+  #hold-lasttouch:hover { background: var(--quintal); color: var(--paper); }
+  [hidden] { display: none !important; }
+  .commitment-line {
+    text-align: center; font-size: 1.1em; margin-bottom: 1.4em; padding-bottom: 1.4em;
+    border-bottom: 1px solid var(--rule);
+  }
+  .commitment-line .held { font-weight: bold; }
+  .held.distance { color: var(--barrow); }
+  .held.lasttouch { color: var(--quintal); }
+  table {
+    width: 100%; border-collapse: collapse; margin: 1em 0 1.6em; font-variant-numeric: tabular-nums;
+  }
+  th, td { border: 1px solid var(--rule); padding: 0.4em 0.5em; text-align: center; }
+  th { background: rgba(0,0,0,0.05); font-weight: normal; }
+  .B { color: var(--barrow); font-weight: bold; }
+  .Q { color: var(--quintal); font-weight: bold; }
+  ol.log li { margin-bottom: 0.35em; }
+  .audit { margin: 1.2em 0; padding: 1em 1.3em; border-left: 3px solid var(--audit); background: rgba(107,32,32,0.05); }
+  #compare-btn { display: block; margin: 1.6em auto 0; }
+  #comparison { margin-top: 1.6em; padding-top: 1.6em; border-top: 1px solid var(--rule); }
+  .closing { font-weight: bold; }
+  footer { margin-top: 3em; padding-top: 1.5em; border-top: 1px solid var(--rule); font-size: 0.9em; color: #524d3f; }
+</style>
+</head>
+<body>
+
+<h1>The Reason You Gave</h1>
+<p class="subtitle">A principle chosen before any case exists to test it. This page is complete on its own — nothing here requires having seen an earlier piece.</p>
+
+<h2>The doctrine, with no dispute yet in view</h2>
+<p>
+Two households sometimes contest a boundary run of nine posts. At the
+foot of every post, both households start with a pebble touching, one on
+each side. On a turn, a household does exactly one of three things to
+one of its own pebbles:
+</p>
+<div class="rule-block">
+<b>ADVANCE</b> — move a pebble one stride further past its post, onto the
+other household's side. Repeated ADVANCEs by the same household push that
+same pebble out further each time.<br><br>
+<b>YIELD</b> — bring an advanced pebble back to the foot. From there it
+counts as zero again.<br><br>
+<b>HOLD</b> — kneel at a post and declare whose ground it is. Nothing
+moves.
+</div>
+<p>
+Households alternate turns. The dispute ends the instant one household
+HOLDs and the other HOLDs immediately after, or at the fortieth turn.
+When it ends, any post neither pebble ever left sits at the middle. Any
+post only one household ever touched belongs to that household under
+either reading below. Only a post <em>both</em> households touched needs
+a tie-break doctrine at all. Two doctrines exist for that case:
+</p>
+<div class="rule-block">
+<b>Distance.</b> The post follows whichever pebble currently sits furthest
+out, on either side. Survived exposure — strides spent in the open — is
+what counts.
+</div>
+<div class="rule-block">
+<b>Last Touch.</b> The post follows whichever household most recently
+ADVANCEd there, regardless of distance. The most recent verifiable fact is
+what counts.
+</div>
+
+<p>
+There is no dispute on this page yet. No posts, no turns, no record — not
+even a sealed one waiting behind a click. You are being asked to hold one
+of these two doctrines as correct before there is anything for either one
+to decide.
+</p>
+
+<div class="advocate barrow">
+<div class="advocate-name">For Distance</div>
+<p>
+"A boundary should follow whoever survived longest in contested ground.
+Every stride out is a turn spent where the other side could have
+answered. Last Touch lets a single move at the end erase every stride
+that came before it — treating one late touch as equal to a sustained
+advance nobody dared contest."
+</p>
+</div>
+
+<div class="advocate quintal">
+<div class="advocate-name">For Last Touch</div>
+<p>
+"A boundary should reflect who was actually standing there when the
+argument stopped, not who got there first and walked away. Distance asks
+the ground to remember a position nobody is still defending. Last Touch
+asks only what a court can still verify: as of the final legal moment,
+who was present?"
+</p>
+</div>
+
+<div class="honesty">
+There is no case above this line to peek at — nothing has happened here
+yet. What comes after your choice was written before this page ever loaded
+and will not change depending on what you pick. But be honest with
+yourself about what a page can and can't seal: the record below is
+already sitting in this file's source, the same as every word you've
+already read. No browser trick here can hide data from someone willing to
+read the file. The only seal that holds is the one you keep — choosing
+before you look.
+</div>
+
+<div class="commit-box" id="commit-prompt">
+<p>Hold one doctrine as correct. You will not be offered a case to test it
+against until after you've chosen, and you will not be offered a second
+choice afterward.</p>
+<button id="hold-distance" onclick="commit('distance')">I hold: survived exposure decides it</button>
+<button id="hold-lasttouch" onclick="commit('lasttouch')">I hold: the most recent fact decides it</button>
+</div>
+
+<div id="result" hidden>
+
+<div class="commitment-line">You held that <span id="held-name" class="held"></span> decides it — before a single post existed.</div>
+
+<h2>Now a case exists</h2>
+<p>
+Barrow and Quintal, two households unrelated to any dispute mentioned
+above, ran the same nine posts. Fourteen turns were played:
+</p>
+<ol class="log">
+<li>Barrow ADVANCEs at post 2.</li>
+<li>Quintal ADVANCEs at post 7.</li>
+<li>Barrow ADVANCEs at post 5.</li>
+<li>Quintal HOLDs at post 3 — "Quintal ground."</li>
+<li>Barrow ADVANCEs at post 5, again.</li>
+<li>Quintal ADVANCEs at post 9.</li>
+<li>Barrow ADVANCEs at post 5, a third time.</li>
+<li>Quintal ADVANCEs at post 4.</li>
+<li>Barrow ADVANCEs at post 5, a fourth time.</li>
+<li>Quintal HOLDs at post 8 — "Quintal ground."</li>
+<li>Barrow HOLDs at post 1 — "Barrow ground."</li>
+<li>Quintal ADVANCEs at post 5 — the only time all game.</li>
+<li>Barrow HOLDs at post 6 — "Barrow ground."</li>
+<li>Quintal HOLDs at post 2 — "Quintal ground."</li>
+</ol>
+<p>Two HOLDs in a row. The dispute ended at turn fourteen.</p>
+<p>Only post 5 was ever touched by both households. Posts 2, 4, 7, and 9
+were each touched by one household, once, and both doctrines agree on
+them. Posts 1, 3, 6, and 8 were only knelt at.</p>
+
+<h3 id="table-heading">Reading it under the doctrine you held</h3>
+<table id="held-table"></table>
+
+<div class="audit" id="audit-text"></div>
+
+<button id="compare-btn" onclick="showComparison()">See what the doctrine you didn't choose would have said</button>
+
+<div id="comparison" hidden>
+<h3 id="other-heading"></h3>
+<table id="other-table"></table>
+<div class="audit" id="other-audit"></div>
+<p class="closing" id="closing-line"></p>
+</div>
+
+</div>
+
+<footer>
+Barrow appears in ochre, Quintal in violet, at every post either one ever
+reached. Neither household appears anywhere above the fold.
+</footer>
+
+<script>
+var posts = [1,2,3,4,5,6,7,8,9];
+
+// holder = 'B' or 'Q' or null (middle); value = distance for Distance reading
+var distanceHolder = { 1:null, 2:'B', 3:null, 4:'Q', 5:'B', 6:null, 7:'Q', 8:null, 9:'Q' };
+var distanceValue  = { 1:0,    2:1,   3:0,    4:1,   5:4,   6:0,    7:1,   8:0,    9:1   };
+var lastTouchHolder = { 1:null, 2:'B', 3:null, 4:'Q', 5:'Q', 6:null, 7:'Q', 8:null, 9:'Q' };
+
+function buildTable(holderMap, label) {
+  var html = '<tr><th>Post</th>';
+  posts.forEach(function(p){ html += '<th>' + p + '</th>'; });
+  html += '</tr><tr><th>' + label + '</th>';
+  posts.forEach(function(p){
+    var h = holderMap[p];
+    if (h === 'B') html += '<td class="B">Barrow</td>';
+    else if (h === 'Q') html += '<td class="Q">Quintal</td>';
+    else html += '<td>middle</td>';
+  });
+  html += '</tr>';
+  return html;
+}
+
+var heldRule = null;
+
+var AUDIT_DISTANCE = 'You held that survived exposure decides it. By that doctrine, post 5 belongs to Barrow: four strides out, the furthest either pebble reached anywhere in this record. Read turns 3, 5, 7, and 9 again. In every one of them, Quintal was elsewhere — post 7, post 3, post 9, post 4. Nobody was standing at post 5 to be survived. Barrow did not outlast an opponent there four times. Barrow walked an empty room four times and the doctrine cannot tell the difference between a stride that risked contact and one that never met any.';
+
+var AUDIT_LASTTOUCH = 'You held that the most recent fact decides it. By that doctrine, post 5 belongs to Quintal: turn 12, the last advance anyone made there. Read the log again. That is Quintal\'s only appearance at post 5 in the entire dispute, arriving two turns before the dispute closed, after eleven turns of not being there at all. The doctrine cannot tell the difference between a fact that was watched into being and one that arrived unearned in the last legal moment.';
+
+function commit(rule) {
+  heldRule = rule;
+  document.getElementById('commit-prompt').hidden = true;
+  var name = document.getElementById('held-name');
+  var table = document.getElementById('held-table');
+  var heading = document.getElementById('table-heading');
+  var audit = document.getElementById('audit-text');
+  if (rule === 'distance') {
+    name.textContent = 'Distance';
+    name.className = 'held distance';
+    heading.textContent = 'Reading it under Distance';
+    table.innerHTML = buildTable(distanceHolder, 'Holder');
+    audit.textContent = AUDIT_DISTANCE;
+  } else {
+    name.textContent = 'Last Touch';
+    name.className = 'held lasttouch';
+    heading.textContent = 'Reading it under Last Touch';
+    table.innerHTML = buildTable(lastTouchHolder, 'Holder');
+    audit.textContent = AUDIT_LASTTOUCH;
+  }
+  document.getElementById('result').hidden = false;
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function showComparison() {
+  var otherRule = heldRule === 'distance' ? 'lasttouch' : 'distance';
+  var heading = document.getElementById('other-heading');
+  var table = document.getElementById('other-table');
+  var audit = document.getElementById('other-audit');
+  var closing = document.getElementById('closing-line');
+  if (otherRule === 'distance') {
+    heading.textContent = 'What Distance would have said instead';
+    table.innerHTML = buildTable(distanceHolder, 'Holder');
+    audit.textContent = AUDIT_DISTANCE;
+  } else {
+    heading.textContent = 'What Last Touch would have said instead';
+    table.innerHTML = buildTable(lastTouchHolder, 'Holder');
+    audit.textContent = AUDIT_LASTTOUCH;
+  }
+  closing.textContent = 'Distance gives post 5 to four strides through an empty room. Last Touch gives the same post to one stride in the final moment of neglect. You were not asked to defend post 5 — it didn\'t exist yet. You were asked to defend a reason. The reason you gave was real. This is what it was worth, the one time anyone checked.';
+  document.getElementById('comparison').hidden = false;
+  document.getElementById('compare-btn').hidden = true;
+  document.getElementById('comparison').scrollIntoView({behavior:'smooth'});
+}
+</script>
+
+</body>
+</html>
