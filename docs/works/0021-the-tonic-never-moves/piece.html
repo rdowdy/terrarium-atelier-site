@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Tonic Never Moves</title>
+<style>
+  :root {
+    --paper: #fafaf8; --ink: #17181a; --line: #d8d6ce; --accent: #7a2e2e;
+  }
+  html, body {
+    margin: 0; padding: 0; background: var(--paper); color: var(--ink);
+    font-family: "Courier New", Courier, monospace;
+  }
+  .wrap { max-width: 700px; margin: 0 auto; padding: 48px 26px 72px; }
+  h1 {
+    font-size: 21px; font-weight: normal; letter-spacing: 0.03em;
+    margin: 0 0 4px; text-transform: uppercase;
+  }
+  .sub {
+    font-size: 12.5px; color: #555; margin: 0 0 36px;
+    border-bottom: 1px dashed var(--line); padding-bottom: 20px; line-height: 1.6;
+  }
+  .rule {
+    font-size: 12.5px; color: #444; line-height: 1.7; margin: 0 0 34px;
+    border: 1px dashed var(--line); padding: 14px 16px;
+  }
+  .strips {
+    display: flex; gap: 14px; justify-content: space-between; margin-bottom: 26px;
+  }
+  .strip { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; }
+  .strip .num { font-size: 10px; letter-spacing: 0.1em; color: #888; margin-bottom: 8px; }
+  .card {
+    width: 100%; border: 1.5px solid var(--ink); background: #fff;
+    padding: 10px 0; display: flex; flex-direction: column; align-items: center;
+    gap: 9px; min-height: 150px; justify-content: center;
+  }
+  .card .note {
+    font-size: 15px; letter-spacing: 0.02em;
+  }
+  .card .note.edge { color: var(--accent); font-weight: bold; }
+  select {
+    margin-top: 10px; width: 100%; font-family: inherit; font-size: 12px;
+    padding: 5px 4px; border: 1px solid var(--line); background: var(--paper);
+    color: var(--ink);
+  }
+  .transport { display: flex; align-items: center; gap: 16px; margin: 30px 0 10px; }
+  button {
+    font-family: inherit; font-size: 13px; letter-spacing: 0.04em;
+    padding: 9px 20px; border: 1.5px solid var(--ink); background: var(--ink);
+    color: var(--paper); cursor: pointer; text-transform: uppercase;
+  }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.secondary { background: var(--paper); color: var(--ink); }
+  .status { font-size: 11.5px; color: #777; }
+  .readout {
+    margin-top: 26px; font-size: 12.5px; line-height: 2; color: #333;
+    border-top: 1px dashed var(--line); padding-top: 16px;
+  }
+  .readout .label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #888;
+  }
+  .readout .seq { letter-spacing: 0.04em; }
+  footer {
+    margin-top: 44px; font-size: 11px; color: #888;
+    border-top: 1px dashed var(--line); padding-top: 16px; line-height: 1.7;
+  }
+  code { background: #eeece3; padding: 1px 5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The Tonic Never Moves</h1>
+  <p class="sub">Four card-strips, six faces each. Turn any strip to any
+  face. Every combination is already in tune with itself &mdash; not
+  because it was chosen for you, but because of a rule fixed before any
+  of the twenty-four faces were written.</p>
+
+  <div class="rule">
+    <strong>The rule, stated so you can check it:</strong> every one of
+    the six faces on every strip is four notes drawn only from C, D, E,
+    G, A &mdash; and every face begins and ends on the same note, C.
+    That means whichever four faces you leave showing, the piece never
+    has to resolve a seam between them: strip 1 always lands back on C
+    exactly where strip 2 always starts. You can read the twenty-four
+    faces below and verify this by eye before you ever press play. 6
+    faces &times; 4 strips = 1,296 arrangements. Nobody wrote the tune
+    you assemble; the rule only guarantees it will hold together.
+  </div>
+
+  <div class="strips" id="strips"></div>
+
+  <div class="transport">
+    <button id="playBtn">Play this arrangement</button>
+    <span class="status" id="status">Ready.</span>
+  </div>
+
+  <div class="readout">
+    <div class="label">Current arrangement, as a score</div>
+    <div class="seq" id="seq"></div>
+  </div>
+
+  <footer>
+    No file leaves this page and no network is used. Sound is
+    synthesized in the browser with the Web Audio API when you press
+    play; nothing plays on its own load. Choosing the four faces is the
+    entire instrument &mdash; there is no shuffle button and nothing
+    here calls <code>Math.random()</code>. If you never press play,
+    the four strips you leave showing are still a complete, specific,
+    readable score, the way a page of hand-written notation is a piece
+    whether or not it is ever performed.
+  </footer>
+</div>
+
+<script>
+(function () {
+  // Every face: 4 MIDI notes, index 0 and 3 are always 60 (C4).
+  var NAMES = {60:'C', 62:'D', 64:'E', 67:'G', 69:'A'};
+  var FACES = [
+    { id: 'a', notes: [60, 64, 67, 60] }, // C E G C
+    { id: 'b', notes: [60, 62, 60, 60] }, // C D C C
+    { id: 'c', notes: [60, 67, 64, 60] }, // C G E C
+    { id: 'd', notes: [60, 69, 67, 60] }, // C A G C
+    { id: 'e', notes: [60, 60, 64, 60] }, // C C E C
+    { id: 'f', notes: [60, 62, 64, 60] }  // C D E C
+  ];
+
+  var strips = [0, 1, 2, 3]; // currently showing face-index per strip
+  var strimEl = document.getElementById('strips');
+  var seqEl = document.getElementById('seq');
+  var statusEl = document.getElementById('status');
+  var playBtn = document.getElementById('playBtn');
+
+  function faceLabel(face) {
+    return face.notes.map(function (n, i) {
+      return (i === 0 || i === 3) ? '<span class="note edge">' + NAMES[n] + '</span>'
+                                   : '<span class="note">' + NAMES[n] + '</span>';
+    }).join('');
+  }
+
+  function render() {
+    strimEl.innerHTML = '';
+    strips.forEach(function (faceIdx, stripPos) {
+      var col = document.createElement('div');
+      col.className = 'strip';
+
+      var num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = 'STRIP ' + (stripPos + 1);
+      col.appendChild(num);
+
+      var card = document.createElement('div');
+      card.className = 'card';
+      var face = FACES[faceIdx];
+      face.notes.forEach(function (n, i) {
+        var d = document.createElement('div');
+        d.className = 'note' + ((i === 0 || i === 3) ? ' edge' : '');
+        d.textContent = NAMES[n];
+        card.appendChild(d);
+      });
+      col.appendChild(card);
+
+      var sel = document.createElement('select');
+      FACES.forEach(function (f, i) {
+        var opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = 'Face ' + f.id.toUpperCase() + ': ' +
+          f.notes.map(function (n) { return NAMES[n]; }).join('-');
+        if (i === faceIdx) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function () {
+        strips[stripPos] = parseInt(sel.value, 10);
+        render();
+      });
+      col.appendChild(sel);
+
+      strimEl.appendChild(col);
+    });
+
+    var fullSeq = [];
+    strips.forEach(function (faceIdx) {
+      fullSeq = fullSeq.concat(FACES[faceIdx].notes);
+    });
+    seqEl.innerHTML = strips.map(function (faceIdx, i) {
+      return '(m' + (i + 1) + ') ' + faceLabel(FACES[faceIdx]);
+    }).join('&nbsp;&nbsp;&nbsp;');
+  }
+
+  var ctx = null;
+  function playSequence() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var fullSeq = [];
+    strips.forEach(function (faceIdx) {
+      fullSeq = fullSeq.concat(FACES[faceIdx].notes);
+    });
+
+    var noteDur = 0.42;   // seconds per quarter note
+    var noteHold = 0.34;  // sounding time before release
+    var now = ctx.currentTime + 0.05;
+
+    fullSeq.forEach(function (midi, i) {
+      var freq = 440 * Math.pow(2, (midi - 69) / 12);
+      var t0 = now + i * noteDur;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(0.22, t0 + 0.015);
+      gain.gain.linearRampToValueAtTime(0.0, t0 + noteHold);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + noteHold + 0.02);
+    });
+
+    var total = fullSeq.length * noteDur;
+    playBtn.disabled = true;
+    statusEl.textContent = 'Playing …';
+    setTimeout(function () {
+      playBtn.disabled = false;
+      statusEl.textContent = 'Ready.';
+    }, total * 1000 + 150);
+  }
+
+  playBtn.addEventListener('click', playSequence);
+  render();
+})();
+</script>
+</body>
+</html>

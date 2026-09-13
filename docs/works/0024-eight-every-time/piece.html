@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Eight, Every Time</title>
+<style>
+  :root { --paper: #fafaf7; --ink: #111111; --dim: #888; --rule: #ccc; --empty-bg: #f0f0ea; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 48px 24px 72px; }
+  h1 {
+    font-size: 26px; font-weight: normal; letter-spacing: 0.03em;
+    margin: 0 0 6px; border-bottom: 1.5px solid var(--ink); padding-bottom: 14px;
+  }
+  .sub { font-size: 13px; color: #666; margin: 10px 0 32px; font-style: italic; }
+  h2 {
+    font-size: 15px; font-weight: normal; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #444; margin: 40px 0 14px;
+    border-top: 0.5px solid var(--rule); padding-top: 18px;
+  }
+  p { font-size: 14.5px; line-height: 1.7; margin: 0 0 14px; max-width: 660px; }
+  .panels { display: flex; gap: 28px; flex-wrap: wrap; }
+  .panel { flex: 1 1 380px; min-width: 320px; }
+  .panel h3 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: normal; color: #444; margin: 0 0 10px;
+  }
+  .grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  }
+  .cell {
+    border: 0.5px solid var(--rule); padding: 6px; min-height: 92px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .cell.empty { background: var(--empty-bg); border-style: dashed; }
+  .cell .code { font-size: 10px; color: var(--dim); font-family: "Courier New", monospace; align-self: flex-start; }
+  .cell svg { width: 34px; height: 34px; margin: 2px 0; }
+  .cell .letters {
+    font-size: 10.5px; font-family: "Courier New", monospace; color: #333;
+    text-align: center; line-height: 1.5; word-break: break-all;
+  }
+  .cell.empty .letters { color: var(--dim); font-style: italic; font-family: Georgia, serif; }
+  button {
+    font-family: Georgia, serif; font-size: 14px; padding: 8px 18px;
+    background: var(--ink); color: var(--paper); border: none; cursor: pointer;
+    letter-spacing: 0.03em;
+  }
+  button:hover { background: #333; }
+  .status {
+    font-size: 13px; color: #444; margin: 16px 0 0; font-family: "Courier New", monospace;
+    line-height: 1.8; background: var(--empty-bg); border: 0.5px solid var(--rule);
+    padding: 12px 16px;
+  }
+  .status .break { color: #a33; font-weight: bold; }
+  footer {
+    margin-top: 44px; font-size: 11px; color: #999;
+    border-top: 0.5px solid var(--rule); padding-top: 14px;
+  }
+  .key {
+    font-size: 12.5px; color: #555; margin: 8px 0 22px; line-height: 1.8;
+  }
+  .key span { font-family: "Courier New", monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EIGHT, EVERY TIME</h1>
+  <p class="sub">An argument carried by a mechanism, run against a rule
+  already hanging in this room. Press the button; nothing here needs to
+  be taken on faith.</p>
+
+  <h2>The rule under test</h2>
+  <p>A nearby piece, <em>Instructions for a Hand I'll Never See</em>,
+  sorts the 26 letters with four yes/no questions &mdash; vowel? in the
+  second half of the alphabet (n&ndash;z)? an ascender (b d f h k l t)?
+  a descender (g j p q y)? &mdash; and reads the four answers as a
+  4-bit code, 0 to 15, each bit its own stroke. Its plaque observes that
+  eight of the sixteen codes can never occur for any English letter, and
+  calls this <em>discovered, not decided in advance</em>.</p>
+  <p>The eight are real: 5, 7, 9, 11, 12, 13, 14, 15 &mdash; every code
+  that needs two or more of {vowel, ascender, descender} at once. No
+  letter is on two of those three lists, so no letter can trigger two of
+  those three strokes, so no letter can ever produce one of those eight
+  codes. The arithmetic is not in question here.</p>
+  <p>What is in question is what the fact is <em>about</em>. Vowel,
+  ascender, and descender were chosen as three lists that share no
+  letter &mdash; a partition, decided the moment those three questions
+  were written down, before a single English letter was sorted into any
+  of them. Once that choice is made, the eight-code gap follows by pure
+  logic, for any 26 things you sort that way, not just for a, b, c...z.
+  The result reads like a finding about the alphabet. It is a finding
+  about the shape of the four questions, and would hold for any alphabet
+  at all, real or invented, sorted the same way.</p>
+
+  <h2>Watch it not depend on the letters</h2>
+  <p>Left: the original scheme, unchanged, exactly as published. Right:
+  the same shape of rule &mdash; three lists sharing no letter, one
+  independent fourth list &mdash; rebuilt from scratch each time you
+  press the button, with fresh, randomly sized, randomly populated
+  lists. If the eight-code gap were a fact about English letters, a
+  strange enough reshuffle should eventually close it. It won't.</p>
+  <div class="key">
+    <span>1</span> vowel-analog &rarr; vertical &nbsp;
+    <span>2</span> second-half-analog &rarr; horizontal &nbsp;
+    <span>4</span> ascender-analog &rarr; diagonal &#8599; &nbsp;
+    <span>8</span> descender-analog &rarr; diagonal &#8600;
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <h3>Original (fixed)</h3>
+      <div class="grid" id="grid-original"></div>
+    </div>
+    <div class="panel">
+      <h3>Reshuffled cast</h3>
+      <div class="grid" id="grid-shuffle"></div>
+    </div>
+  </div>
+
+  <p style="margin-top:22px;"><button id="shuffle-btn">Shuffle the cast</button></p>
+  <div class="status" id="status">Shuffles so far: 0</div>
+
+  <h2>What this does and doesn't show</h2>
+  <p>It doesn't touch the arithmetic of the original piece, which is
+  correct, or its honesty about how the artist found the gap, which this
+  piece has no way to check and doesn't dispute. It shows that the gap
+  is a property of asking three mutually exclusive questions plus one
+  independent one &mdash; a property of the rule's architecture &mdash;
+  and not a property discovered <em>about</em> the 26 letters it happened
+  to be run on. Swap every letter for a different one, keep the shape of
+  the four questions, and the same eight codes stay dark. The alphabet
+  was never where the fact lived.</p>
+
+  <footer>
+    Deterministic except for the reshuffle, which is triggered only by
+    your own click &mdash; nothing here moves, plays, or redraws on its
+    own. A companion script, <code>verify.py</code>, repeats this test
+    tens of thousands of times outside the browser and reports whether
+    the eight forbidden codes were ever populated. Run it with
+    <code>python verify.py</code>.
+  </footer>
+</div>
+
+<script>
+const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+const FORBIDDEN = [5,7,9,11,12,13,14,15];
+
+function codesFor(vowelSet, secondHalfSet, ascSet, descSet) {
+  const buckets = Array.from({length: 16}, () => []);
+  for (const L of LETTERS) {
+    let c = 0;
+    if (vowelSet.has(L)) c |= 1;
+    if (secondHalfSet.has(L)) c |= 2;
+    if (ascSet.has(L)) c |= 4;
+    if (descSet.has(L)) c |= 8;
+    buckets[c].push(L);
+  }
+  return buckets;
+}
+
+function originalBuckets() {
+  return codesFor(
+    new Set(['a','e','i','o','u']),
+    new Set(['n','o','p','q','r','s','t','u','v','w','x','y','z']),
+    new Set(['b','d','f','h','k','l','t']),
+    new Set(['g','j','p','q','y'])
+  );
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function randomBuckets() {
+  const pool = shuffle(LETTERS);
+  const vSize = 2 + Math.floor(Math.random() * 6);
+  const aSize = 2 + Math.floor(Math.random() * 7);
+  const dSize = 2 + Math.floor(Math.random() * 5);
+  let i = 0;
+  const vowelSet = new Set(pool.slice(i, i += vSize));
+  const ascSet = new Set(pool.slice(i, i += aSize));
+  const descSet = new Set(pool.slice(i, i += dSize));
+  const pool2 = shuffle(LETTERS);
+  const shSize = 6 + Math.floor(Math.random() * 14);
+  const secondHalfSet = new Set(pool2.slice(0, shSize));
+  return codesFor(vowelSet, secondHalfSet, ascSet, descSet);
+}
+
+function strokeSVG(code) {
+  const on = (bit) => (code & bit) ? '1' : '0.08';
+  return `<svg viewBox="0 0 40 40">
+    <line x1="20" y1="4" x2="20" y2="36" stroke="#111" stroke-width="2" opacity="${on(1)}"/>
+    <line x1="4" y1="20" x2="36" y2="20" stroke="#111" stroke-width="2" opacity="${on(2)}"/>
+    <line x1="6" y1="34" x2="34" y2="6" stroke="#111" stroke-width="2" opacity="${on(4)}"/>
+    <line x1="6" y1="6" x2="34" y2="34" stroke="#111" stroke-width="2" opacity="${on(8)}"/>
+  </svg>`;
+}
+
+function renderGrid(elId, buckets) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  for (let code = 0; code < 16; code++) {
+    const letters = buckets[code];
+    const div = document.createElement('div');
+    div.className = 'cell' + (letters.length === 0 ? ' empty' : '');
+    if (letters.length === 0) {
+      div.innerHTML = `<span class="code">${code}</span><div class="letters">impossible</div>`;
+    } else {
+      div.innerHTML = `<span class="code">${code}</span>${strokeSVG(code)}<div class="letters">${letters.join(' ')}</div>`;
+    }
+    el.appendChild(div);
+  }
+}
+
+let shuffleCount = 0;
+
+function runShuffle() {
+  const buckets = randomBuckets();
+  renderGrid('grid-shuffle', buckets);
+  shuffleCount++;
+  const brokenAny = FORBIDDEN.some(code => buckets[code].length > 0);
+  const statusEl = document.getElementById('status');
+  if (brokenAny) {
+    statusEl.innerHTML = `Shuffles so far: ${shuffleCount} &mdash; <span class="break">codes 5, 7, 9, 11, 12, 13, 14, or 15 just got a letter. The claim above is wrong.</span>`;
+  } else {
+    statusEl.textContent = `Shuffles so far: ${shuffleCount} — codes 5, 7, 9, 11, 12, 13, 14, 15 empty every time, this run included.`;
+  }
+}
+
+renderGrid('grid-original', originalBuckets());
+runShuffle();
+document.getElementById('shuffle-btn').addEventListener('click', runShuffle);
+</script>
+</body>
+</html>

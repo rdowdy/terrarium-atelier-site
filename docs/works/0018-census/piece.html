@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Census</title>
+<style>
+  :root {
+    --paper: #fafaf7;
+    --ink: #111111;
+    --rule: #111111;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: normal;
+    letter-spacing: 0.04em;
+    margin: 0 0 4px;
+    border-bottom: 1.5px solid var(--rule);
+    padding-bottom: 12px;
+  }
+  .lede {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    margin: 16px 0 28px;
+  }
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    padding: 8px 16px;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+  }
+  button:hover { background: #eeeeea; }
+  button.active { background: var(--ink); color: var(--paper); }
+  .custom-input {
+    margin: 4px 0 24px;
+    font-size: 13px;
+  }
+  .custom-input label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  .custom-input input {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 8px;
+    width: 320px;
+    max-width: 100%;
+    border: 1px solid #999;
+    background: #fff;
+  }
+  .custom-input button {
+    margin-left: 8px;
+    padding: 6px 14px;
+  }
+  .summary {
+    font-size: 13px;
+    color: #333;
+    min-height: 20px;
+    margin: 4px 0 20px;
+    border-top: 0.5px solid #ccc;
+    border-bottom: 0.5px solid #ccc;
+    padding: 10px 0;
+  }
+  .placeholder {
+    font-size: 13px;
+    color: #888;
+    font-style: italic;
+    padding: 20px 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    border: 1.5px solid var(--ink);
+  }
+  .slot {
+    background: var(--paper);
+    text-align: center;
+    padding: 10px 4px 12px;
+    border: 0.5px solid #ccc;
+  }
+  .slot .label {
+    font-size: 10px;
+    color: #999;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  .slot svg {
+    width: 56px;
+    height: 56px;
+  }
+  .slot .ticks {
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    letter-spacing: 3px;
+    min-height: 18px;
+    margin-top: 2px;
+    color: var(--ink);
+  }
+  .slot .count {
+    font-size: 12px;
+    color: #555;
+  }
+  footer {
+    margin-top: 36px;
+    font-size: 11px;
+    color: #999;
+    border-top: 0.5px solid #ccc;
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>CENSUS</h1>
+  <p class="lede">
+    Sixteen room-types: each cell carries some combination of four
+    strokes — vertical, horizontal, and the two diagonals — or none.
+    Select a ledger below. The machine reads it cell by cell and
+    reports, for each of the sixteen types, how many times it was
+    recorded.
+  </p>
+  <div class="controls">
+    <button data-ledger="A">Ledger A</button>
+    <button data-ledger="B">Ledger B</button>
+    <button data-ledger="C">Write your own</button>
+  </div>
+  <div class="custom-input" id="customBox" hidden>
+    <label>Sixteen digits (or any number of them), 0&ndash;15, separated by spaces or commas:</label>
+    <input type="text" id="customInput" placeholder="e.g. 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15" />
+    <button id="tallyCustom">Tally</button>
+  </div>
+  <div class="summary" id="summary">
+    <span class="placeholder">No ledger selected. Choose one above.</span>
+  </div>
+  <div class="grid" id="grid"></div>
+  <footer>
+    Bit key: 1 = vertical, 2 = horizontal, 4 = diagonal (bottom-left to top-right), 8 = diagonal (top-left to bottom-right).
+  </footer>
+</div>
+
+<script>
+  const LEDGER_A = [15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  const LEDGER_B = [0, 4, 12, 8, 1, 5, 13, 9, 3, 7, 15, 11, 2, 6, 14, 10];
+
+  function iconSVG(code) {
+    const lines = [];
+    const c = 28, lo = 6, hi = 50;
+    if (code & 1) lines.push(`<line x1="${c}" y1="${lo}" x2="${c}" y2="${hi}" />`);
+    if (code & 2) lines.push(`<line x1="${lo}" y1="${c}" x2="${hi}" y2="${c}" />`);
+    if (code & 4) lines.push(`<line x1="${lo}" y1="${hi}" x2="${hi}" y2="${lo}" />`);
+    if (code & 8) lines.push(`<line x1="${lo}" y1="${lo}" x2="${hi}" y2="${hi}" />`);
+    return `<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="54" height="54" fill="none" stroke="#ddd" stroke-width="1" />
+      <g stroke="#111" stroke-width="2.5" stroke-linecap="round">${lines.join('')}</g>
+    </svg>`;
+  }
+
+  function tally(codes) {
+    const counts = new Array(16).fill(0);
+    let ignored = 0;
+    codes.forEach(c => {
+      if (Number.isInteger(c) && c >= 0 && c <= 15) counts[c]++;
+      else ignored++;
+    });
+    return { counts, ignored };
+  }
+
+  function render(codes) {
+    const { counts, ignored } = tally(codes);
+    const distinct = counts.filter(c => c > 0).length;
+    const summary = document.getElementById('summary');
+    let text = `${codes.length - ignored} room${(codes.length - ignored) === 1 ? '' : 's'} recorded across ${distinct} of 16 possible types.`;
+    if (ignored > 0) text += ` (${ignored} entr${ignored === 1 ? 'y' : 'ies'} outside 0–15, ignored.)`;
+    summary.textContent = text;
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    for (let i = 0; i < 16; i++) {
+      const div = document.createElement('div');
+      div.className = 'slot';
+      const n = counts[i];
+      div.innerHTML = `
+        <div class="label">TYPE ${i}</div>
+        ${iconSVG(i)}
+        <div class="ticks">${'|'.repeat(n)}</div>
+        <div class="count">${n}</div>
+      `;
+      grid.appendChild(div);
+    }
+  }
+
+  document.querySelectorAll('button[data-ledger]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('button[data-ledger]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const which = btn.dataset.ledger;
+      document.getElementById('customBox').hidden = which !== 'C';
+      if (which === 'A') render(LEDGER_A);
+      else if (which === 'B') render(LEDGER_B);
+      else if (which === 'C') {
+        const raw = document.getElementById('customInput').value;
+        const codes = raw.split(/[\s,]+/).filter(s => s.length).map(Number);
+        render(codes);
+      }
+    });
+  });
+
+  document.getElementById('tallyCustom').addEventListener('click', () => {
+    const raw = document.getElementById('customInput').value;
+    const codes = raw.split(/[\s,]+/).filter(s => s.length).map(Number);
+    render(codes);
+  });
+</script>
+</body>
+</html>

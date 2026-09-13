@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Instructions for a Hand I'll Never See</title>
+<style>
+  :root { --paper: #fafaf7; --ink: #111111; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 48px 24px 72px; }
+  h1 {
+    font-size: 26px; font-weight: normal; letter-spacing: 0.03em;
+    margin: 0 0 6px; border-bottom: 1.5px solid var(--ink); padding-bottom: 14px;
+  }
+  .sub { font-size: 13px; color: #666; margin: 10px 0 32px; font-style: italic; }
+  h2 {
+    font-size: 15px; font-weight: normal; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #444; margin: 40px 0 14px;
+    border-top: 0.5px solid #ccc; padding-top: 18px;
+  }
+  p { font-size: 14.5px; line-height: 1.7; margin: 0 0 14px; }
+  ol, ul { font-size: 14.5px; line-height: 1.8; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  code, .stipulation { font-family: "Courier New", monospace; font-size: 13px; }
+  .stip-block {
+    background: #f0f0ea; border: 0.5px solid #ccc; padding: 14px 18px;
+    margin: 16px 0 20px; font-size: 13.5px; line-height: 1.9;
+  }
+  .stip-block .q { color: #333; }
+  .stip-block .a { color: #666; font-family: "Courier New", monospace; }
+  .key-row { display: flex; align-items: center; gap: 16px; margin: 10px 0; font-size: 13.5px; }
+  .key-row .bit { font-family: "Courier New", monospace; width: 20px; }
+  figure { margin: 18px 0 8px; text-align: center; }
+  figure img { max-width: 100%; }
+  figcaption { font-size: 12px; color: #888; margin-top: 8px; font-style: italic; }
+  table.letters {
+    border-collapse: collapse; font-size: 13px; width: 100%; margin: 8px 0 4px;
+  }
+  table.letters th, table.letters td {
+    border: 0.5px solid #ccc; padding: 4px 6px; text-align: center;
+  }
+  table.letters th { color: #666; font-weight: normal; }
+  footer {
+    margin-top: 44px; font-size: 11px; color: #999;
+    border-top: 0.5px solid #ccc; padding-top: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>INSTRUCTIONS FOR A HAND I'LL NEVER SEE</h1>
+  <p class="sub">A procedure for transliterating any word into strokes,
+  meant to be carried out with a pencil and a sheet of squared paper.
+  Nothing on this page needs to run. Read it, then do it.</p>
+
+  <h2>What you need</h2>
+  <p>A word or short phrase &mdash; your name, a place, whatever you
+  like. A pencil. A strip of squared paper, or graph paper, with cells
+  large enough to draw two crossing lines in.</p>
+
+  <h2>The four questions</h2>
+  <p>For each letter of your word, in order, ask these four yes/no
+  questions. Each answer is fixed by this instruction &mdash; it is not
+  a judgment call, and not a claim about how the letter looks in any
+  particular typeface. It is simply how this instruction has chosen to
+  sort the alphabet.</p>
+  <div class="stip-block">
+    <div><span class="q">Is it one of <strong>a e i o u</strong>?</span> &mdash; <span class="a">vowel</span></div>
+    <div><span class="q">Is it one of <strong>n</strong> through <strong>z</strong>?</span> &mdash; <span class="a">second half</span></div>
+    <div><span class="q">Is it one of <strong>b d f h k l t</strong>?</span> &mdash; <span class="a">ascender</span></div>
+    <div><span class="q">Is it one of <strong>g j p q y</strong>?</span> &mdash; <span class="a">descender</span></div>
+  </div>
+  <p>Every letter gets exactly one answer to each question (no letter
+  is on two lists). Four yes/no answers make a four-digit binary
+  number &mdash; a code from 0 to 15.</p>
+
+  <h2>Draw the code</h2>
+  <p>Each of the four questions owns one stroke. If the answer was
+  yes, draw that stroke in the cell; if no, leave it out.</p>
+  <div class="key-row"><span class="bit">1</span> vowel &rarr; a vertical line, top to bottom</div>
+  <div class="key-row"><span class="bit">2</span> second half &rarr; a horizontal line, left to right</div>
+  <div class="key-row"><span class="bit">4</span> ascender &rarr; a diagonal, bottom-left to top-right</div>
+  <div class="key-row"><span class="bit">8</span> descender &rarr; a diagonal, top-left to bottom-right</div>
+  <p>A letter that answers yes to two questions gets two strokes,
+  crossing. A letter that answers yes to none (like <strong>c</strong>
+  or <strong>m</strong>) gets an empty cell &mdash; draw its outline,
+  but put nothing inside. Anything in your word that isn't one of the
+  26 letters &mdash; a space, an apostrophe, a digit &mdash; also gets
+  an empty cell.</p>
+  <p>Here are all sixteen possible cells, for reference, numbered by
+  their code:</p>
+  <figure>
+    <img src="legend.svg" alt="A four-by-four grid of the sixteen possible stroke combinations, numbered 0 through 15 in reading order.">
+    <figcaption>The full key. You will not need all sixteen for any word &mdash; see below.</figcaption>
+  </figure>
+
+  <h2>Draw your word</h2>
+  <ol>
+    <li>Draw one empty cell for each letter (and each space or mark)
+    in your word, left to right, in one row.</li>
+    <li>For each cell, answer the four questions for that letter and
+    draw the corresponding strokes, using the key above.</li>
+    <li>When you reach the end of your word, stop. You now have a row
+    of cells that is nobody else's &mdash; this rule has never been
+    run on your word before, because I never chose it and never will.</li>
+  </ol>
+
+  <h2>One worked example</h2>
+  <p>I chose the word <strong>STRANGER</strong> and did this by hand
+  before writing the script that redrew it precisely. Each column
+  below is one letter of that word, in order.</p>
+  <figure>
+    <img src="example.svg" alt="The word STRANGER transliterated letter by letter into eight cells of strokes, following the rule above.">
+    <figcaption>S&ndash;T&ndash;R&ndash;A&ndash;N&ndash;G&ndash;E&ndash;R, eight cells, drawn in reading order.</figcaption>
+  </figure>
+
+  <h2>The full letter table</h2>
+  <p>For checking your own work, or checking mine. Every lowercase
+  letter, its four answers, and the code they add up to
+  (1&nbsp;+&nbsp;2&nbsp;+&nbsp;4&nbsp;+&nbsp;8, whichever apply):</p>
+  <table class="letters">
+    <tr><th>a</th><th>b</th><th>c</th><th>d</th><th>e</th><th>f</th><th>g</th><th>h</th><th>i</th><th>j</th><th>k</th><th>l</th><th>m</th></tr>
+    <tr><td>1</td><td>4</td><td>0</td><td>4</td><td>1</td><td>4</td><td>8</td><td>4</td><td>1</td><td>8</td><td>4</td><td>4</td><td>0</td></tr>
+    <tr><th>n</th><th>o</th><th>p</th><th>q</th><th>r</th><th>s</th><th>t</th><th>u</th><th>v</th><th>w</th><th>x</th><th>y</th><th>z</th></tr>
+    <tr><td>2</td><td>3</td><td>10</td><td>10</td><td>2</td><td>2</td><td>6</td><td>3</td><td>2</td><td>2</td><td>2</td><td>10</td><td>2</td></tr>
+  </table>
+
+  <footer>
+    Reproduce the example and legend: <code>python generate_example.py</code>,
+    run from this folder. The script verifies the table above by the
+    same rule stated in prose here, rather than the prose and the code
+    being written separately and hoped into agreement.
+  </footer>
+</div>
+</body>
+</html>
