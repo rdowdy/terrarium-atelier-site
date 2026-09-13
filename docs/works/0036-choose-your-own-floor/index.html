@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Choose Your Own Floor</title>
+<style>
+  body { font-family: Georgia, "Times New Roman", serif; max-width: 760px; margin: 40px auto; padding: 0 20px; color: #111; background: #fdfdfb; line-height: 1.5; }
+  h1 { font-size: 1.4em; margin-bottom: 0.1em; }
+  .sub { color: #666; font-size: 0.92em; margin-bottom: 1.6em; }
+  svg { display: block; margin: 0 auto; background: white; border: 1px solid #ddd; }
+  .controls { margin-top: 1.4em; display: grid; grid-template-columns: 1fr; gap: 1.1em; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row label { flex: 0 0 200px; font-size: 0.95em; }
+  .row input[type=range] { flex: 1; }
+  .row .val { flex: 0 0 60px; text-align: right; font-variant-numeric: tabular-nums; font-weight: bold; }
+  #warn { color: #a33; font-size: 0.9em; min-height: 1.2em; }
+  #result { margin-top: 1.2em; padding: 14px 18px; background: #f4f4ef; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95em; }
+  #result code { background: #eee; padding: 1px 4px; border-radius: 3px; }
+  #checkRow { margin-top: 10px; font-size: 0.88em; color: #555; }
+  #revealBtn { margin-top: 1.4em; padding: 8px 14px; font-size: 0.95em; cursor: pointer; }
+  #revealBox { margin-top: 1em; padding: 14px 18px; background: #eef4ee; border: 1px solid #b9cdb9; border-radius: 4px; font-size: 0.95em; }
+  #revealBox.hidden { display: none; }
+  .bar-label { font-size: 12px; fill: #555; }
+  .overlay-label { font-size: 13px; fill: #144; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Choose Your Own Floor</h1>
+<div class="sub">Epoch 38 &middot; interactive machine plus a written proof</div>
+
+<p>Eight bars. No numbers anywhere on them, no axis, no floor. Assign
+whatever value you like to the shortest bar and the tallest bar below.
+Whatever you pick, the machine will hand back a floor and a full set of
+values for all eight bars — and they will fit the picture exactly, pixel
+for pixel, every time.</p>
+
+<svg id="chart" viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<div class="controls">
+  <div class="row">
+    <label for="sliderA">Value you assign to <b id="labelA">bar</b>:</label>
+    <input type="range" id="sliderA" min="-60" max="60" step="1" value="-10">
+    <span class="val" id="valA">-10</span>
+  </div>
+  <div class="row">
+    <label for="sliderB">Value you assign to <b id="labelB">bar</b>:</label>
+    <input type="range" id="sliderB" min="60" max="220" step="1" value="130">
+    <span class="val" id="valB">130</span>
+  </div>
+</div>
+
+<div id="warn"></div>
+
+<div id="result"></div>
+
+<button id="revealBtn">Show what I actually used to draw this</button>
+<div id="revealBox" class="hidden"></div>
+
+<p style="margin-top:2em; font-size:0.9em; color:#555;">
+See <a href="PROOF.md">PROOF.md</a> for the algebra behind why this always
+works, for any two values you pick, not just convenient ones.
+</p>
+
+<script>
+// ---- the only numbers that are real; never printed on the chart itself ----
+const DATA = [46, 61, 34, 53, 70, 42, 57, 66];
+const FLOOR = 15;
+const CEILING = Math.max(...DATA) + 4; // 74, same convention as 0033-0035
+
+const W = 700, H = 500;
+const PAD_T = 70, PAD_B = 70, PAD_L = 40, PAD_R = 40;
+const PLOT_W = W - PAD_L - PAD_R;
+const PLOT_H = H - PAD_T - PAD_B;
+const GAP = 16;
+const N = DATA.length;
+const BAR_W = (PLOT_W - GAP * (N - 1)) / N;
+
+function heightFor(v) {
+  return PLOT_H * (v - FLOOR) / (CEILING - FLOOR);
+}
+const HEIGHTS = DATA.map(heightFor); // the only thing the picture actually shows
+
+// identify shortest / tallest bars programmatically -- not hardcoded indices
+let idxA = 0, idxB = 0;
+for (let i = 1; i < N; i++) {
+  if (HEIGHTS[i] < HEIGHTS[idxA]) idxA = i;
+  if (HEIGHTS[i] > HEIGHTS[idxB]) idxB = i;
+}
+const hA = HEIGHTS[idxA], hB = HEIGHTS[idxB];
+
+document.getElementById('labelA').textContent = 'bar ' + (idxA + 1) + ' (the shortest one)';
+document.getElementById('labelB').textContent = 'bar ' + (idxB + 1) + ' (the tallest one)';
+
+const svgns = "http://www.w3.org/2000/svg";
+const svg = document.getElementById('chart');
+
+function el(tag, attrs) {
+  const e = document.createElementNS(svgns, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+const baselineY = PAD_T + PLOT_H;
+const bars = [];
+
+function drawBase() {
+  svg.innerHTML = '';
+  const title = el('text', { x: PAD_L, y: 30, class: 'bar-label', 'font-size': 16, fill: '#111' });
+  title.textContent = 'Eight bars. No numbers. No axis. No floor.';
+  svg.appendChild(title);
+
+  for (let i = 0; i < N; i++) {
+    const x0 = PAD_L + i * (BAR_W + GAP);
+    const h = HEIGHTS[i];
+    const y0 = baselineY - h;
+    const rect = el('rect', { x: x0, y: y0, width: BAR_W, height: h, fill: '#111' });
+    svg.appendChild(rect);
+    bars.push({ x0, y0 });
+
+    const lab = el('text', { x: x0 + BAR_W / 2, y: baselineY + 20, class: 'bar-label', 'text-anchor': 'middle' });
+    lab.textContent = String(i + 1);
+    svg.appendChild(lab);
+
+    const overlay = el('text', { x: x0 + BAR_W / 2, y: 0, class: 'overlay-label', 'text-anchor': 'middle', id: 'ov' + i });
+    overlay.style.display = 'none';
+    svg.appendChild(overlay);
+  }
+}
+drawBase();
+
+const sliderA = document.getElementById('sliderA');
+const sliderB = document.getElementById('sliderB');
+const valA = document.getElementById('valA');
+const valB = document.getElementById('valB');
+const warn = document.getElementById('warn');
+const result = document.getElementById('result');
+
+function update() {
+  const vA = parseFloat(sliderA.value);
+  const vB = parseFloat(sliderB.value);
+  valA.textContent = vA;
+  valB.textContent = vB;
+
+  if (vB <= vA) {
+    warn.textContent = 'Bar ' + (idxB + 1) + ' is taller than bar ' + (idxA + 1) + ' in the picture, so its assigned value must be larger too. Pick vB > vA.';
+    result.innerHTML = '';
+    for (let i = 0; i < N; i++) document.getElementById('ov' + i).style.display = 'none';
+    return;
+  }
+  warn.textContent = '';
+
+  // s = pixels per unit implied by this assumption; impliedFloor = the floor
+  // that makes bar idxA equal exactly vA under that scale.
+  const s = (hB - hA) / (vB - vA);
+  const impliedFloor = vA - hA / s;
+
+  let maxResidual = 0;
+  const impliedValues = HEIGHTS.map((h, i) => {
+    const v = impliedFloor + h / s;
+    const predictedH = s * (v - impliedFloor);
+    maxResidual = Math.max(maxResidual, Math.abs(predictedH - h));
+    return v;
+  });
+
+  for (let i = 0; i < N; i++) {
+    const ov = document.getElementById('ov' + i);
+    ov.textContent = impliedValues[i].toFixed(1);
+    ov.setAttribute('x', bars[i].x0 + BAR_W / 2);
+    ov.setAttribute('y', baselineY - HEIGHTS[i] - 10);
+    ov.style.display = 'block';
+  }
+
+  result.innerHTML =
+    '<p>Assume bar ' + (idxA + 1) + ' = <code>' + vA + '</code> and bar ' + (idxB + 1) + ' = <code>' + vB + '</code>.</p>' +
+    '<p>Implied floor: <b>' + impliedFloor.toFixed(2) + '</b>. Implied values for all eight bars are printed above them.</p>' +
+    '<div id="checkRow">Self-consistency check: recomputing every bar\'s pixel height from these implied values and the implied scale reproduces the drawing to within ' + maxResidual.toExponential(2) + ' px (floating-point noise, i.e. exact). Try any two values — it never fails to fit.</div>';
+}
+
+sliderA.addEventListener('input', update);
+sliderB.addEventListener('input', update);
+update();
+
+document.getElementById('revealBtn').addEventListener('click', function () {
+  const box = document.getElementById('revealBox');
+  box.classList.remove('hidden');
+  box.innerHTML =
+    '<p>The values actually used to draw this chart: <code>' + DATA.join(', ') + '</code>, with a real floor of <b>' + FLOOR + '</b> and a real scale of <b>' + (PLOT_H / (CEILING - FLOOR)).toFixed(4) + '</b> px/unit.</p>' +
+    '<p>Nothing in the picture, or in this machine, could have told you those were the real numbers rather than any other pair you tried above. Every one of your guesses fit exactly. So did this one. That is the whole point &mdash; see <a href="PROOF.md">PROOF.md</a>.</p>';
+});
+</script>
+
+</body>
+</html>

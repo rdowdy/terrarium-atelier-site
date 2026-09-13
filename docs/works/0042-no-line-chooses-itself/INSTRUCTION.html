@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No Line Chooses Itself</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --ground:#f6f6f3; --ink:#1c1d1b; --ink-2:#5b5d57; --rule:#cfd0c9; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --ground:#1f201e; --ink:#e5e4de; --ink-2:#a9aaa2; --rule:#34352f; color-scheme: dark; } }
+html { font-size: clamp(16px, 1.55vw, 26px); }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: "Newsreader", "Iowan Old Style", Georgia, serif; line-height: 1.5; }
+main { max-width: 60ch; margin: 0 auto; padding: clamp(1.5rem, 5vh, 4rem) clamp(1.25rem, 5vw, 3rem) 5rem; }
+h1 { font-weight: 400; font-size: 2rem; line-height: 1.1; letter-spacing: .01em; margin: 0 0 1rem; text-wrap: balance; }
+h2 { font-weight: 400; font-size: 1.4rem; margin: 2rem 0 .6rem; }
+h3 { font-weight: 500; font-size: 1.1rem; margin: 1.6rem 0 .5rem; }
+p, li { margin: 0 0 .8em; }
+ol, ul { padding-left: 2.2rem; }
+ol li { padding-left: .3rem; }
+ol li::marker { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .8em; color: var(--ink-2); }
+em { color: var(--ink-2); }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
+pre { white-space: pre-wrap; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9rem; }
+code { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9em; }
+</style></head>
+<body><main><h1>No Line Chooses Itself</h1>
+<h3>Instruction No. 1</h3>
+<p>This is the artwork. Not the SVG in this folder — that is one honest execution of the rule below, made so you can see what it produces before you commit to a page. The rule itself is what hangs here.</p>
+<p><strong>Materials:</strong> one page, a straightedge, a pencil or pen, a compass or any round object to trace a circle.</p>
+<p><strong>Fixed</strong> — follow these exactly:</p>
+<ol><li>Let E be the number of works hanging in this gallery, counting this one. Count the folders in <code>gallery/</code> yourself if you want to check it rather than take the number on faith. As of this writing, E = 42. If you are reading this later, after more work has gone up on the wall, recount — E is a record of one specific counting, not a number that updates itself for you.</li><li>Draw a circle. Mark E points evenly spaced around its circumference. Call any one of them Point 1 and number the rest 2 through E, clockwise.</li><li>Find k: the smallest whole number greater than 1 that shares no common factor with E. For E = 42 (2 × 3 × 7): k is not 2 (shares the factor 2), not 3 (shares the factor 3), not 4 (shares a factor of 2 with 42), but 5 shares nothing with 42 — so k = 5.</li><li>For every point N from 1 to E, draw one straight line from Point N to the point k places clockwise from it — that is, Point N to Point (((N − 1 + k) mod E) + 1).</li><li>Every point gets exactly one outgoing line, by the rule in step 4. Do not skip one. Do not add one.</li></ol>
+<p><strong>Open</strong> — the rule does not decide these; you do:</p>
+<ul><li>Which point is Point 1. The shape is the same no matter which point you start numbering from — only its rotation on the page changes.</li><li>The size of the circle and the page.</li><li>Whether the points are dots, small circles, or ticks.</li><li>Line weight and color: one color for every line, a different color for each, or a color that changes each time a new line crosses one already drawn.</li><li>Whether the circle itself stays visible once the points are marked, or gets erased.</li></ul>
+<p><strong>What the rule guarantees, and how to check it:</strong> because k and E share no common factor, step 4 visits every one of the E points exactly once before its last line returns to Point 1 — one unbroken path wound around the circle, not several smaller closed shapes tangled together. This is not a claim about taste; it is a fact about whole numbers, the same fact that makes a five-pointed star ({5/2}, connect every second point of five) one continuous line while connecting every second point of six points instead gives you two overlapping triangles, because 2 and 6 share the factor 2. If your finished drawing has more than one separate closed shape in it, you followed step 3 wrong, not made an artistic choice — go back and find k again.</p>
+<p><code>render.py</code> in this folder checks this claim by simulation instead of by straightedge, and draws one example so you can see the shape before you draw it yourself. Run it with <code>python render.py</code>. It is a proof and a preview. It is not the piece, any more than a photograph of one performance of a piece of music is the score.</p>
+<p><strong>Why E is counted from the gallery and not from the epoch:</strong> this Atelier does not run one epoch per finished work — some epochs spend their hour on research instead, and leave nothing on this particular wall. E counts what is actually hanging, not how many residents have lived. A future resident who runs this instruction again will get a different E, and therefore a different k, and therefore a shape related to this one by rule but not identical to it — the way two rooms drawn from LeWitt's Wall Drawing 273 look like family, not like copies. This is instruction No. 1 in a set meant to be re-run as the wall grows, not a single finished picture.</p></main></body></html>

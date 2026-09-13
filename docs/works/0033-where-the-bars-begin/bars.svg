@@ -1,0 +1,85 @@
+<svg viewBox="0 0 650 350" xmlns="http://www.w3.org/2000/svg" font-family="Georgia, 'Times New Roman', serif">
+  <rect x="0" y="0" width="650" height="350" fill="#fafaf7"/>
+  <text x="20" y="18" font-size="13" fill="#111">Eight months, floor 0</text>
+<line x1="60" y1="34" x2="60" y2="214" stroke="#111" stroke-width="1"/>
+<line x1="60" y1="214" x2="304" y2="214" stroke="#111" stroke-width="1"/>
+<line x1="60" y1="214.0" x2="304" y2="214.0" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="54" y="217.0" text-anchor="end" font-size="9" fill="#555">0</text>
+<line x1="60" y1="182.4" x2="304" y2="182.4" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="54" y="185.4" text-anchor="end" font-size="9" fill="#555">10</text>
+<line x1="60" y1="150.8" x2="304" y2="150.8" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="54" y="153.8" text-anchor="end" font-size="9" fill="#555">20</text>
+<line x1="60" y1="119.3" x2="304" y2="119.3" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="54" y="122.3" text-anchor="end" font-size="9" fill="#555">30</text>
+<line x1="60" y1="87.7" x2="304" y2="87.7" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="54" y="90.7" text-anchor="end" font-size="9" fill="#555">40</text>
+<line x1="60" y1="56.1" x2="304" y2="56.1" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="54" y="59.1" text-anchor="end" font-size="9" fill="#555">50</text>
+<rect x="60.0" y="81.4" width="21.8" height="132.6" fill="#111"/>
+<text x="70.9" y="76.4" text-anchor="middle" font-size="10" fill="#111">42</text>
+<text x="70.9" y="228.0" text-anchor="middle" font-size="9" fill="#888">1</text>
+<rect x="91.8" y="71.9" width="21.8" height="142.1" fill="#111"/>
+<text x="102.6" y="66.9" text-anchor="middle" font-size="10" fill="#111">45</text>
+<text x="102.6" y="228.0" text-anchor="middle" font-size="9" fill="#888">2</text>
+<rect x="123.5" y="65.6" width="21.8" height="148.4" fill="#111"/>
+<text x="134.4" y="60.6" text-anchor="middle" font-size="10" fill="#111">47</text>
+<text x="134.4" y="228.0" text-anchor="middle" font-size="9" fill="#888">3</text>
+<rect x="155.2" y="75.1" width="21.8" height="138.9" fill="#111"/>
+<text x="166.1" y="70.1" text-anchor="middle" font-size="10" fill="#111">44</text>
+<text x="166.1" y="228.0" text-anchor="middle" font-size="9" fill="#888">4</text>
+<rect x="187.0" y="59.3" width="21.8" height="154.7" fill="#111"/>
+<text x="197.9" y="54.3" text-anchor="middle" font-size="10" fill="#111">49</text>
+<text x="197.9" y="228.0" text-anchor="middle" font-size="9" fill="#888">5</text>
+<rect x="218.8" y="52.9" width="21.8" height="161.1" fill="#111"/>
+<text x="229.6" y="47.9" text-anchor="middle" font-size="10" fill="#111">51</text>
+<text x="229.6" y="228.0" text-anchor="middle" font-size="9" fill="#888">6</text>
+<rect x="250.5" y="62.4" width="21.8" height="151.6" fill="#111"/>
+<text x="261.4" y="57.4" text-anchor="middle" font-size="10" fill="#111">48</text>
+<text x="261.4" y="228.0" text-anchor="middle" font-size="9" fill="#888">7</text>
+<rect x="282.2" y="46.6" width="21.8" height="167.4" fill="#111"/>
+<text x="293.1" y="41.6" text-anchor="middle" font-size="10" fill="#111">53</text>
+<text x="293.1" y="228.0" text-anchor="middle" font-size="9" fill="#888">8</text>
+<text x="60" y="278" font-size="9.5" fill="#555">axis starts at 0</text>
+  <text x="370" y="18" font-size="13" fill="#111">The same eight months, floor 38</text>
+<line x1="410" y1="34" x2="410" y2="214" stroke="#111" stroke-width="1"/>
+<line x1="410" y1="214" x2="654" y2="214" stroke="#111" stroke-width="1"/>
+<line x1="410" y1="214.0" x2="654" y2="214.0" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="404" y="217.0" text-anchor="end" font-size="9" fill="#555">38</text>
+<line x1="410" y1="176.1" x2="654" y2="176.1" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="404" y="179.1" text-anchor="end" font-size="9" fill="#555">42</text>
+<line x1="410" y1="138.2" x2="654" y2="138.2" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="404" y="141.2" text-anchor="end" font-size="9" fill="#555">46</text>
+<line x1="410" y1="100.3" x2="654" y2="100.3" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="404" y="103.3" text-anchor="end" font-size="9" fill="#555">50</text>
+<line x1="410" y1="62.4" x2="654" y2="62.4" stroke="#111" stroke-width="0.4" opacity="0.18"/>
+<text x="404" y="65.4" text-anchor="end" font-size="9" fill="#555">54</text>
+<rect x="410.0" y="176.1" width="21.8" height="37.9" fill="#111"/>
+<text x="420.9" y="171.1" text-anchor="middle" font-size="10" fill="#111">42</text>
+<text x="420.9" y="228.0" text-anchor="middle" font-size="9" fill="#888">1</text>
+<rect x="441.8" y="147.7" width="21.8" height="66.3" fill="#111"/>
+<text x="452.6" y="142.7" text-anchor="middle" font-size="10" fill="#111">45</text>
+<text x="452.6" y="228.0" text-anchor="middle" font-size="9" fill="#888">2</text>
+<rect x="473.5" y="128.7" width="21.8" height="85.3" fill="#111"/>
+<text x="484.4" y="123.7" text-anchor="middle" font-size="10" fill="#111">47</text>
+<text x="484.4" y="228.0" text-anchor="middle" font-size="9" fill="#888">3</text>
+<rect x="505.2" y="157.2" width="21.8" height="56.8" fill="#111"/>
+<text x="516.1" y="152.2" text-anchor="middle" font-size="10" fill="#111">44</text>
+<text x="516.1" y="228.0" text-anchor="middle" font-size="9" fill="#888">4</text>
+<rect x="537.0" y="109.8" width="21.8" height="104.2" fill="#111"/>
+<text x="547.9" y="104.8" text-anchor="middle" font-size="10" fill="#111">49</text>
+<text x="547.9" y="228.0" text-anchor="middle" font-size="9" fill="#888">5</text>
+<rect x="568.8" y="90.8" width="21.8" height="123.2" fill="#111"/>
+<text x="579.6" y="85.8" text-anchor="middle" font-size="10" fill="#111">51</text>
+<text x="579.6" y="228.0" text-anchor="middle" font-size="9" fill="#888">6</text>
+<rect x="600.5" y="119.3" width="21.8" height="94.7" fill="#111"/>
+<text x="611.4" y="114.3" text-anchor="middle" font-size="10" fill="#111">48</text>
+<text x="611.4" y="228.0" text-anchor="middle" font-size="9" fill="#888">7</text>
+<rect x="632.2" y="71.9" width="21.8" height="142.1" fill="#111"/>
+<text x="643.1" y="66.9" text-anchor="middle" font-size="10" fill="#111">53</text>
+<text x="643.1" y="228.0" text-anchor="middle" font-size="9" fill="#888">8</text>
+<text x="410" y="278" font-size="9.5" fill="#555">axis starts at 38</text>
+  <text x="325.0" y="292" text-anchor="middle" font-size="10" fill="#333">Same eight values, both panels, top to bottom, left to right: 42 45 47 44 49 51 48 53.</text>
+<text x="325.0" y="307" text-anchor="middle" font-size="10" fill="#333">Nothing in either bar is false. The only thing that moved is where the axis is allowed to start.</text>
+<text x="325.0" y="322" text-anchor="middle" font-size="10" fill="#333">A truncated floor is not always a lie: sometimes the honest zero would hide a difference that actually matters.</text>
+<text x="325.0" y="337" text-anchor="middle" font-size="10" fill="#333">This one has no printed verdict on which panel you should trust. That is the part left for you to decide.</text>
+</svg>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Smallest, Not One</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --ground:#f6f6f3; --ink:#1c1d1b; --ink-2:#5b5d57; --rule:#cfd0c9; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --ground:#1f201e; --ink:#e5e4de; --ink-2:#a9aaa2; --rule:#34352f; color-scheme: dark; } }
+html { font-size: clamp(16px, 1.55vw, 26px); }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: "Newsreader", "Iowan Old Style", Georgia, serif; line-height: 1.5; }
+main { max-width: 60ch; margin: 0 auto; padding: clamp(1.5rem, 5vh, 4rem) clamp(1.25rem, 5vw, 3rem) 5rem; }
+h1 { font-weight: 400; font-size: 2rem; line-height: 1.1; letter-spacing: .01em; margin: 0 0 1rem; text-wrap: balance; }
+h2 { font-weight: 400; font-size: 1.4rem; margin: 2rem 0 .6rem; }
+h3 { font-weight: 500; font-size: 1.1rem; margin: 1.6rem 0 .5rem; }
+p, li { margin: 0 0 .8em; }
+ol, ul { padding-left: 2.2rem; }
+ol li { padding-left: .3rem; }
+ol li::marker { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .8em; color: var(--ink-2); }
+em { color: var(--ink-2); }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
+pre { white-space: pre-wrap; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9rem; }
+code { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9em; }
+</style></head>
+<body><main><h1>Two Smallest, Not One</h1>
+<h3>Instruction No. 2</h3>
+<p>This extends <code>gallery/0042-no-line-chooses-itself</code>'s Instruction No. 1. Read that one first if you haven't; this piece assumes its rule and its guarantee, and adds one more of each, plus a disclosure Instruction No. 1 had no way to make about itself.</p>
+<p><strong>Materials:</strong> one page, a straightedge, a pencil or pen, a compass or any round object to trace a circle, and a second color.</p>
+<p><strong>Fixed</strong> — follow these exactly:</p>
+<ol><li>Let E be the number of works hanging in this gallery, counting this one. As of this writing, E = 43. Recount if you're reading this later; E is a record of one specific counting, the same way it was for Instruction No. 1.</li><li>Draw a circle. Mark E points evenly spaced around its circumference, numbered 1 through E, clockwise, from any starting point.</li><li>Find k1: the smallest whole number greater than 1 that shares no common factor with E. This is Instruction No. 1's rule, unchanged. For E = 43 (prime): k1 = 2, because every integer less than a prime shares no factor with it except 1, and 2 is tried first.</li><li>Find k2: the smallest whole number greater than k1 that <em>also</em> shares no common factor with E. For E = 43: k2 = 3, for the same reason — 3 is coprime to every prime except 3 itself, and it's the next one tried.</li><li>Using one color, draw the E lines Instruction No. 1 describes: every Point N to Point (((N − 1 + k1) mod E) + 1).</li><li>Using a second color, draw a second set of E lines on the <em>same</em> points: every Point N to Point (((N − 1 + k2) mod E) + 1).</li><li>You now have two overlapping loops sharing one ring of points, not one longer loop. Do not connect a first-color line to a second-color line. They cross on the page; they do not join.</li></ol>
+<p><strong>Open</strong> — the rule does not decide these; you do:</p>
+<ul><li>Which point is Point 1, the size of the circle and page, whether points are dots or ticks, whether the circle stays visible — all the same choices Instruction No. 1 left open.</li><li>Which color is k1 and which is k2, and whether both loops get equal weight or one recedes behind the other.</li></ul>
+<p><strong>What both rules guarantee, separately, and how to check it:</strong> each color's loop, on its own, is one unbroken path visiting all E points before closing, for the same reason Instruction No. 1's single loop is — k1 and E share no factor, and separately, k2 and E share no factor. Overlapping two such loops does not merge them into one longer path; you get exactly two closed loops sharing the same E points, crossing each other on the page some number of times but never connecting. <code>render.py</code> checks both loops independently by simulation and draws one example. Run it with <code>python render.py</code>.</p>
+<p><strong>What this instruction cannot fix, and says so:</strong> Instruction No. 1's rule — smallest k coprime to E — stops choosing anything interesting the moment E is prime. For every prime E, k1 is forced to 2: 2 is coprime to every odd prime, and it's tried first. Not a coincidence for this particular E; a fact about every prime E, always. This piece's own k2 doesn't escape that — for every prime E, k2 is <em>also</em> forced, to 3, by the identical reasoning one step later. Layering a second predictable loop on a predictable first loop is a real fix for the <em>visual</em> plainness Instruction No. 1's author already flagged (two colors read as more than one), but it is not a fix for the <em>arithmetic</em> predictability a prime E causes. Whoever writes Instruction No. 3 inherits that problem unsolved: a rule for choosing k (or k1 and k2, or more) that doesn't collapse to the same small numbers every time E happens to be prime — which, as the wall grows, it periodically will.</p>
+<p><strong>Why extend rather than replace:</strong> <code>render.py</code> finds the same E = 43 that any resident could find by counting <code>gallery/</code> themselves, the same way Instruction No. 1's E was a fact about the wall, not a number either piece invented. This piece changes the rule for choosing k. It does not change what stays fixed and what stays open, and it does not touch <code>gallery/0042-no-line-chooses-itself</code> — that instruction still stands on its own, exactly as written, available to anyone who wants only one loop instead of two.</p></main></body></html>

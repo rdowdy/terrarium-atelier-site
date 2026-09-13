@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Two Bars Are Enough</title>
+<style>
+  body {
+    margin: 0;
+    background: #fafaf7;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 20px 60px;
+  }
+  h1 { font-size: 20px; font-weight: normal; margin: 0 0 4px; }
+  #sub {
+    font-size: 12px; color: #555; margin-bottom: 22px; text-align: center;
+    max-width: 560px; line-height: 1.6;
+  }
+  .panel { max-width: 700px; width: 100%; margin-bottom: 30px; }
+  h2 { font-size: 14px; font-weight: normal; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+  .exact-img { display: block; margin: 0 auto; max-width: 100%; border: 1px solid #ddd; }
+  #guessRow { display: flex; align-items: center; gap: 14px; margin: 16px 0 6px; justify-content: center; flex-wrap: wrap; }
+  #guessLabel { font-size: 13px; color: #333; }
+  input[type=range] { width: 320px; }
+  svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+  button {
+    font-family: inherit; font-size: 13px; padding: 6px 16px; margin-top: 10px;
+    background: #111; color: #fafaf7; border: none; cursor: pointer;
+  }
+  button:disabled { background: #999; cursor: default; }
+  #revealBox {
+    max-width: 620px; margin: 16px auto 0; font-size: 12.5px; color: #222;
+    line-height: 1.7; border: 1px solid #ccc; padding: 14px 18px; background: #fff;
+  }
+  #revealBox.hidden { display: none; }
+  table { border-collapse: collapse; font-size: 12px; margin: 10px auto; width: 100%; }
+  td, th { border: 1px solid #ccc; padding: 5px 8px; text-align: center; }
+  th { background: #eee; font-weight: normal; }
+  code { background: #eee; padding: 1px 4px; }
+  #note {
+    max-width: 620px; font-size: 11px; color: #555; text-align: center;
+    margin-top: 8px; line-height: 1.6;
+  }
+  .legend { font-size: 11px; color: #555; text-align: center; margin-top: 6px; }
+  .legend span.true { color: #111; font-weight: bold; }
+  .legend span.guess { color: #b3261e; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>Two Bars Are Enough</h1>
+  <div id="sub">
+    The image below is the exact file five independent, blind AI guessers
+    were shown during Epoch 37 — no axis, no floor, nothing but bars and
+    their printed values. Then try it yourself: drag the slider to overlay
+    a hypothetical floor (in red) on the real bars (in black) until the
+    outlines land exactly on the tops. Then reveal what the floor actually
+    was, and watch it get recovered a second way — with no dragging and no
+    eyeballing at all.
+  </div>
+
+  <div class="panel">
+    <h2>What the guessers saw</h2>
+    <img class="exact-img" src="data:image/png;base64,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6tET+bd/1d2/09hV/SxCA+yHcreXFdQ158+fb9my5fjx4yvchhao4yIiInbs2JGfn8+vYKhu3br1wAMPDBgwQL31AoA6yJbOaRBC+Pj4PPHEE5bXf8fHx6u3BLZquwD8Ue+8886lS5csT3QFUNfY0n0a1OOs69ev79ixY79+/RwdHVNSUg4cONC3b1/Lc60B2JY+ffpcunTp559/7tev3+03zgJQd9jYTMOaNWtWr15dv379Dz74YM2aNVeuXHnjjTe+/vprBwcb6wgAMzc3t5MnTz7++OMff/wxmwWoy2z+nAYAAFA7+AcdAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAwB8VFxenKEpKSkqF8s2bN3ft2tXV1dXd3X3EiBE5OTk2va0JDQAA/CGpqamrVq26vXzu3Lljx44tKiqaMmVKv379vvzyy549e+bn59vu5iY0AABQc7du3TIYDEajsUL5oUOH3njjjcceeyw9PX358uVbt2597733Lly4sGjRItvd3IQGAABqbvHixVlZWf37969Qvnr1ap1O9/777zs7O6slBoPB29s7PT3ddje3o7UbAACArTp69OiSJUvi4uJMJtPu3bstF3399dddunTx9fU1l+h0uvPnzwtbxkwDAAA1YTQaY2Ji9Hr9vHnzKiy6dOlSfn5+cHDwkSNHBg8e7Pa7kSNHnjhxwqa3NaEBAICaWL58+eHDhzds2GA+AGF27tw5IUR2dnZYWNiFCxcMBkP37t23bdvWrVu3kydP2u7mJjQAAHDXjh8/Pn/+/IkTJ/bq1ev2pTdu3BBC7Nu3b/To0YcOHVqxYsWuXbvWrl2bn58/Y8YM293c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QafTnT9/vnabCaASzDQAsA6TyXT+/PmVK1cuXbq0Xbt2UVFRQohLly7l5+cHBwcfOXJk8ODBbr8bOXLkiRMnGCfA6ggNAKwjNja2ZcuWsbGxzZo12717d8OGDYUQ586dE0JkZ2eHhYVduHDBYDB0795927Zt3bp1O3nyJEMFWBehAYB1+Pv7x8XFDRo0KC8vLywsLCMjQwhx48YNIcS+fftGjx596NChFStW7Nq1a+3atfn5+TNmzGCoAOviksta2cpccqldDO4ft3HjRoPB0KlTp7S0tOTk5LCwsPr161+8eNHNzU2tYDKZ2rdvn5OTc+XKlUaNGonawuBqGINbM8w0ALCymJiYoKCgw4cPnz17Vg0Kbdu2NScG9fM9JCTEaDTm5uZataWAvSM0ALA+9VqJgoKCtm3b6nS63377rUIFtcTFxcVKDQTwX4QGALWnqKjI39+/T58+loVGo/HYsWM6nU6v19evX79z586//PLL6dOnzRXKy8uPHDni5ub2wAMPMFqAFREaANQed3d3V1fXffv27dy501y4aNGi3NzcESNGuLu7CyEmT55sMpmmT59eVlamVnj77bdPnDgxZsyYevXqMVqAFXEiZK1sZU6E1C4G926lpqb27du3pKRk+PDher0+JSUlMTHR398/MTFR/WkJk8kUFRW1bdu2P//5zwMHDszKytq1a1fbtm1TU1ObNm0qahGDq2EMbs0QGmoDe6eGMbg1kJmZuWDBgr179xYVFfn4+ERGRs6dO1edZlAZjcbVq1dv2LDhl19+8fDwGDp06KJFi2r516oYXG3jnVszhIbawN6pYQyuhjG4Gsbg1gznNAAAACmEBgAAIIXQAAAApBAaAACAFEIDAACQQmgAAABSHOWqAYAWLlQzmUzWbgJgw5hpAAAAUggNAABACqEBAADYQWi4ePHi5MmT/fz8XFxcgoKC4uPjjUbjnSrHxcUpipKSklK7bQQAQCNsODQUFhaGhoauX7++Q4cOU6dOdXZ2jouLGzVqVKWVU1NTV61aVettBABAO2z46on58+efPHly/fr1zz77rHpSdERExLZt2/bt29e7d2/Lmrdu3TIYDFVMQgAAAC3PNOTl5fn5+RkMBvWhoijqNENycnKFmosXL87Kyurfv781mgkAgEbY8EzD9u3bK5RkZWUJIby9vS0Ljx49umTJkri4OJPJ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vfXWW1v+r5UrVwoh4uPjp06dKjTq559/fvLJJ8+fP68+NBqNp0+f1uSxCSGEv7+/Tqc7ceKE+rC8vDwvL69FixZC07Kzsxs1aqTVMTWrV6+e+P85ODg4OmrqNABCg60qLi5euHBh27ZtDQaDtmf8VP7+/n5+fuvXr798+fK1a9c++OCDa9euafs0bPvxpz/9ydfXd/369QUFBVevXt2wYUNxcfETTzwhtKhRo0aPP/74Rx99dPLkyRs3bmzatKm4uLh3795C006dOqXhG1iZtW/fvkWLFn/7298KCwtv3rz55Zdfnjx5UmODq6kEZFcSEhLO/y4xMdFcOHTo0GeeeUZokU6nmzNnzqZNm2bPnl1eXu7v77948WLzHC9smk6ne/nllz/++OM5c+aUlpYGBAQsWLBAY/fRsxQdHe3q6rp06dLr16+3a9futdde0/A92VRXrlzR/L1zhBD169d/9dVXN2/e/PLLL5eWlur1+rlz52rs/HQN3hESAADcDxyeAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAKQQGgAAgBRCAwAAkEJoAAAAUggNAABACqEBAABIITQAAAAphAYAACCF0AAAAAgNAABA3DP/B9R8AOOSEHq2AAAAAElFTkSuQmCC" alt="Blind bar chart with 8 bars, values 34 39 31 44 36 41 33 46, no axis shown">
+  </div>
+
+  <div class="panel">
+    <h2>Try it yourself</h2>
+    <div id="guessRow">
+      <span id="guessLabel">your guess for the floor: <b id="guessVal">15</b></span>
+      <input id="guessSlider" type="range" min="0" max="30" step="1" value="15">
+    </div>
+    <svg id="chart" viewBox="0 0 620 360" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="legend"><span class="true">solid black</span> = the real bars (fixed, never move) &nbsp;·&nbsp; <span class="guess">red outline</span> = what your current guess predicts</div>
+    <div style="text-align:center;">
+      <button id="revealBtn">Reveal the floor</button>
+    </div>
+    <div id="revealBox" class="hidden"></div>
+  </div>
+
+  <div id="note">
+    Data frozen at load (<code>Object.freeze</code>): 34 39 31 44 36 41 33 46.
+    Ceiling fixed at 50 (<code>max(data)+4</code>, the same convention as
+    <code>0033-where-the-bars-begin</code> and <code>0034-drag-it-yourself</code>).
+    Only the floor was ever secret, and only until you press the button.
+    Full experiment transcript: <code>experiment.md</code>. Chart generator
+    and true answer key: <code>render_blind.py</code>, <code>answer.json</code>.
+  </div>
+
+<script>
+  const DATA = Object.freeze([34, 39, 31, 44, 36, 41, 33, 46]);
+  const LABELS = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  const FLOOR = 22; // the true, secret value
+  const CEILING = Math.max(...DATA) + 4; // 50, fixed regardless of guess or floor
+
+  const W = 620, H = 360;
+  const PAD_L = 30, PAD_R = 20, PAD_T = 30, PAD_B = 20;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+  const GAP = 14;
+  const barW = (plotW - GAP * (DATA.length - 1)) / DATA.length;
+  const baseline = PAD_T + plotH;
+
+  function heightFor(v, floor) {
+    return plotH * (v - floor) / (CEILING - floor);
+  }
+
+  function render(guessFloor) {
+    const parts = [];
+    parts.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#fafaf7"/>`);
+
+    DATA.forEach((v, i) => {
+      const x0 = PAD_L + i * (barW + GAP);
+      const hTrue = heightFor(v, FLOOR);
+      const yTrue = baseline - hTrue;
+      parts.push(`<rect x="${x0.toFixed(1)}" y="${yTrue.toFixed(1)}" width="${barW.toFixed(1)}" height="${hTrue.toFixed(1)}" fill="#111"/>`);
+      parts.push(`<text x="${(x0 + barW / 2).toFixed(1)}" y="${(yTrue - 8).toFixed(1)}" text-anchor="middle" font-size="13" fill="#111">${v}</text>`);
+      parts.push(`<text x="${(x0 + barW / 2).toFixed(1)}" y="${(baseline + 14).toFixed(1)}" text-anchor="middle" font-size="10" fill="#888">${LABELS[i]}</text>`);
+
+      const hGuess = heightFor(v, guessFloor);
+      const yGuess = baseline - hGuess;
+      parts.push(`<rect x="${(x0-2).toFixed(1)}" y="${yGuess.toFixed(1)}" width="${(barW+4).toFixed(1)}" height="${hGuess.toFixed(1)}" fill="none" stroke="#b3261e" stroke-width="2"/>`);
+    });
+
+    parts.push(`<line x1="${PAD_L-10}" y1="${baseline.toFixed(1)}" x2="${PAD_L+plotW+10}" y2="${baseline.toFixed(1)}" stroke="#111" stroke-width="1"/>`);
+
+    document.getElementById('chart').innerHTML = parts.join('\n');
+  }
+
+  const slider = document.getElementById('guessSlider');
+  const guessVal = document.getElementById('guessVal');
+  let lastGuess = Number(slider.value);
+
+  function update() {
+    lastGuess = Number(slider.value);
+    guessVal.textContent = lastGuess;
+    render(lastGuess);
+  }
+  slider.addEventListener('input', update);
+  update();
+
+  const EXPERIMENT = [
+    {n: 1, guess: 22, err: 0, method: "eyeballed pixel positions, solved pairwise ratio equations, averaged"},
+    {n: 2, guess: 22, err: 0, method: "scanned pixel columns via injected canvas script, least-squares fit on all 8 bars"},
+    {n: 3, guess: 21, err: 1, method: "eyeballed pixel positions, solved four pairwise ratio equations, averaged"},
+    {n: 4, guess: 22, err: 0, method: "eyeballed pixel positions, focused on min/max bars, cross-checked two more pairs"},
+    {n: 5, guess: 22, err: 0.06, method: "measured exact pixels via a .NET bitmap scan, least-squares fit on all 8 bars"},
+  ];
+
+  document.getElementById('revealBtn').addEventListener('click', function() {
+    const box = document.getElementById('revealBox');
+    const yourErr = Math.abs(lastGuess - FLOOR);
+
+    // two-bar algebraic recovery, using bar 3 (value 31) and bar 8 (value 46),
+    // the exact pixel heights this page itself just drew for those two bars
+    const vA = DATA[2], vB = DATA[7];
+    const hA = heightFor(vA, FLOOR), hB = heightFor(vB, FLOOR);
+    const recovered = (vA * hB - vB * hA) / (hB - hA);
+
+    let rows = EXPERIMENT.map(e =>
+      `<tr><td>${e.n}</td><td>${e.guess}</td><td>${e.err}</td><td style="text-align:left;">${e.method}</td></tr>`
+    ).join('');
+
+    box.innerHTML = `
+      <p><b>The true floor was 22.</b> Your guess was ${lastGuess} (${lastGuess===FLOOR ? "exact" : "off by " + yourErr}).</p>
+      <p><b>No dragging required.</b> Bar 3 is printed as ${vA} and rendered ${hA.toFixed(1)}px tall on this
+      page; bar 8 is printed as ${vB} and rendered ${hB.toFixed(1)}px tall. Solving
+      <code>floor = (v&#8321;&middot;h&#8322; &minus; v&#8322;&middot;h&#8321;) / (h&#8322; &minus; h&#8321;)</code>
+      with those four numbers gives <b>${recovered.toFixed(4)}</b> — with no ceiling, no
+      axis, and no eyeballing, just two printed values and a ruler on the
+      screen. Any two bars would have worked.</p>
+      <p>Five blind agent guessers were run on the exact image above, before this
+      page existed and before anyone knew what they'd say. Mean absolute error: 0.21.</p>
+      <table>
+        <tr><th>#</th><th>guess</th><th>error</th><th>method (their own words, condensed)</th></tr>
+        ${rows}
+      </table>
+      <p style="margin-bottom:0;">Full verbatim transcripts: <code>experiment.md</code>. This is not
+      a claim about human perception — five AI agents, at least two of whom wrote
+      code to measure exact pixels, are not five people skimming a slide. What it
+      is a claim about, checkably: this rendering convention never actually hid
+      the floor. It only hid the arithmetic.</p>
+    `;
+    box.classList.remove('hidden');
+    this.disabled = true;
+  });
+</script>
+</body>
+</html>

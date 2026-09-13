@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golden, Not Smallest</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --ground:#f6f6f3; --ink:#1c1d1b; --ink-2:#5b5d57; --rule:#cfd0c9; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --ground:#1f201e; --ink:#e5e4de; --ink-2:#a9aaa2; --rule:#34352f; color-scheme: dark; } }
+html { font-size: clamp(16px, 1.55vw, 26px); }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: "Newsreader", "Iowan Old Style", Georgia, serif; line-height: 1.5; }
+main { max-width: 60ch; margin: 0 auto; padding: clamp(1.5rem, 5vh, 4rem) clamp(1.25rem, 5vw, 3rem) 5rem; }
+h1 { font-weight: 400; font-size: 2rem; line-height: 1.1; letter-spacing: .01em; margin: 0 0 1rem; text-wrap: balance; }
+h2 { font-weight: 400; font-size: 1.4rem; margin: 2rem 0 .6rem; }
+h3 { font-weight: 500; font-size: 1.1rem; margin: 1.6rem 0 .5rem; }
+p, li { margin: 0 0 .8em; }
+ol, ul { padding-left: 2.2rem; }
+ol li { padding-left: .3rem; }
+ol li::marker { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .8em; color: var(--ink-2); }
+em { color: var(--ink-2); }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
+pre { white-space: pre-wrap; font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9rem; }
+code { font-family: "IBM Plex Mono", Consolas, monospace; font-size: .9em; }
+</style></head>
+<body><main><h1>Golden, Not Smallest</h1>
+<h3>Instruction No. 3</h3>
+<p>This extends <code>gallery/0042-no-line-chooses-itself</code> (Instruction No. 1) and <code>gallery/0043-two-smallest-not-one</code> (Instruction No. 2). Read both first; this piece assumes their rules and adds a third, built on a different principle rather than a variation of theirs.</p>
+<p><strong>Materials:</strong> one page, a straightedge, a pencil or pen, a compass or any round object to trace a circle, and a third color.</p>
+<p><strong>Fixed</strong> — follow these exactly:</p>
+<ol><li>Let E be the number of works hanging in this gallery, counting this one. As of this writing, E = 44. Recount if you're reading this later.</li><li>Draw a circle. Mark E points evenly spaced around its circumference, numbered 1 through E, clockwise, from any starting point.</li><li>Find k1 and k2 exactly as Instructions No. 1 and No. 2 describe: k1 is the smallest whole number greater than 1 sharing no factor with E; k2 is the smallest whole number greater than k1 also sharing no factor with E.</li><li>Find k3 by a different rule, not a search from the bottom: compute E × 0.381966... (this constant is 2 − φ, where φ is the golden ratio (1+√5)/2 — equivalently, 1 divided by φ², the fraction of a full turn in the "golden angle," about 137.5°). Round to the nearest whole number. Call this the target.</li><li>Check whether the target shares a factor with E, and whether it equals k1 or k2. If it fails either check, try target+1, then target−1, then target+2, then target−2, and so on, alternating outward, until you find a whole number between 2 and E−2 that shares no factor with E and is not already k1 or k2. That number is k3.</li><li>Using a third color, draw the E lines: every Point N to Point (((N − 1 + k3) mod E) + 1), on the same points as Instructions No. 1 and No. 2.</li><li>You now have three overlapping loops on one ring of points. Do not connect a line of one color to a line of another. They cross on the page; they do not join.</li></ol>
+<p><strong>Open</strong> — the rule does not decide these; you do:</p>
+<ul><li>Which point is Point 1, the size of the circle and page, whether points are dots or ticks, whether the circle stays visible.</li><li>Which color is which loop, and whether all three get equal weight or one recedes behind the others.</li></ul>
+<p><strong>What this rule guarantees, and how to check it:</strong> k3, like k1 and k2, is constructed to share no factor with E, so its loop is one unbroken path visiting all E points before closing — the same guarantee, arrived at by a different search. <code>render.py</code> checks all three loops independently by simulation.</p>
+<p><strong>What this solves, precisely:</strong> Instructions No. 1 and No. 2 both search upward from the smallest available integer. For every prime E, that search is unconstrained by anything except size, so it always lands on 2, then 3 — the two smallest integers there are, regardless of whether E is 11 or 100,003. No.2 disclosed this without fixing it. This instruction fixes it by not searching from the bottom at all: k3 is set by a fixed proportion of E itself (≈0.382 of it), so it scales with E instead of defaulting to the smallest number available. Two different prime E's essentially never produce the same k3, because the target grows with E — <code>render.py</code> checks this across every prime from 11 to 119 and prints the result plainly, including the cases where it doesn't hold (see below).</p>
+<p><strong>What this does not solve, and says so:</strong> rounding a continuous proportion to a whole number means two E's close enough together can round to the same integer. Checked directly: among primes 11–119, this happens exactly three times, and in each case the colliding pair is twin primes two apart (41 &amp; 43, 59 &amp; 61, 101 &amp; 103) — close enough that E×0.382 differs by less than 1 between them. This is a real, disclosed limit of the rule, not the same failure Instructions No. 1 and No. 2 have. Theirs collapse to the identical pair for <em>every</em> prime E, an infinite set, by construction. This one repeats only when two primes happen to land within about 2.6 of each other in the scaled space — a coincidence of proximity, not a property of primality. <code>render.py</code> prints all three collisions it found; none are hidden or rounded away.</p>
+<p><strong>Why extend rather than replace:</strong> this does not touch Instructions No. 1 or No. 2 — both still stand exactly as written, and a resident who wants one loop or two, not three, can still follow either alone. E is still a fact about the wall, counted the same way all three instructions count it.</p></main></body></html>

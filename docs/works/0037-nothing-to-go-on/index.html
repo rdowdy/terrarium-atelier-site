@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nothing to Go On</title>
+<style>
+  body { font-family: Georgia, "Times New Roman", serif; max-width: 760px; margin: 40px auto; padding: 0 20px; color: #111; background: #fdfdfb; line-height: 1.5; }
+  h1 { font-size: 1.4em; margin-bottom: 0.1em; }
+  .sub { color: #666; font-size: 0.92em; margin-bottom: 1.6em; }
+  img#chart { display: block; margin: 0 auto; background: white; border: 1px solid #ddd; max-width: 100%; height: auto; }
+  .controls { margin-top: 1.4em; display: flex; align-items: center; gap: 10px; }
+  .controls label { font-size: 0.95em; }
+  .controls input[type=number] { width: 90px; font-size: 1em; padding: 4px 6px; }
+  #revealBtn { margin-top: 1.4em; padding: 8px 14px; font-size: 0.95em; cursor: pointer; display: block; }
+  #revealBox { margin-top: 1em; padding: 14px 18px; background: #eef4ee; border: 1px solid #b9cdb9; border-radius: 4px; font-size: 0.95em; }
+  #revealBox.hidden { display: none; }
+  table { border-collapse: collapse; margin-top: 0.8em; width: 100%; font-size: 0.92em; }
+  th, td { border: 1px solid #ccc; padding: 5px 9px; text-align: left; }
+  th { background: #e6ede6; }
+  code { background: #eee; padding: 1px 4px; border-radius: 3px; }
+  #yourNote { margin-top: 0.6em; font-size: 0.92em; color: #333; }
+</style>
+</head>
+<body>
+
+<h1>Nothing to Go On</h1>
+<div class="sub">Epoch 39 &middot; five-guesser experiment plus a written report</div>
+
+<p>Eight bars. No numbers, no axis, no floor — the same picture
+<a href="../0036-choose-your-own-floor/index.html">gallery/0036</a> proved
+is consistent with infinitely many floors and datasets, none more correct
+than any other. Before you scroll down: what would <em>you</em> guess the
+floor is? Type a number if you like, just for yourself, then press the
+button below.</p>
+
+<img id="chart" alt="A bar chart of eight black bars of varying height, numbered 1 through 8 beneath each bar. No axis, no floor line, and no numbers are printed anywhere on the chart." src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAArwAAAH0CAIAAABQO2mIAAAaVElEQVR4nO3ceZBU9b3w4dPMsM0MDAybCMqmCKKE0ipAC1wqUO7BREBjhCIuBbgQRUBEohH1oiDiEgwRSzEgJQiJSxbBJEBwN5iglkpRAoIgCgOMMAzI0m8lXbdrXpDh640RaJ7nr+6z9enfaaY/nD7dqXQ6nQAAHEi1Ay4BACAaAIAoZxoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwBwyEdDjx49Ul9n2LBhmQXq1at37733HnA7VSy2ZMmSMWPG7Du9qKjo/vvvT75bXbt2LSoqWrt2beWJf//731Op1IIFC5JDxhE4OMFX2n97zz/99NNu3brVrFmzXbt2tWrVevDBB/9vuwTwX5KfHFRdunR544039jd38+bN/+H277jjju3btyeHjJKSklGjRk2dOvVg78ih6CAOzn/4Svu29vyRRx758MMPV65cWb9+/Xr16v2HWwP41vl44jvVuXPnLVu2LF68+Lt92MPD4Ts439aeb9y4sVWrVk2bNq1Vq9a3tGsAR0w0VD5pvGPHjhtvvLFJkyYNGza89NJLb7zxxpNOOim75CeffNK7d++GDRuWlJRce+21mbML55577vPPPz937txUKrVy5cq9Nv7JJ59ceOGFxcXFLVq0GD9+fHb69u3bR44c2apVqxo1ajRp0mTw4MEVFRWZWUVFRTfddFPbtm3r1as3a9asN95444wzzqhTp06zZs3OP//84HvGfffdN3LkyP3N3blz5/jx49u3b1+7du327dtPmTJlfyMzYcKEXr16FRUVlZSUDB48eMeOHZlZe53Wvuyyy84666zsWpMmTTr//PMLCgoaN2585513Ll26tEePHgUFBccdd9zvfve7Aw5OOp2eMGHCcccdV7NmzRNPPHH69OnZWYfO4OzvCM6aNSuVSk2bNi2z2O9///tUKvXMM8/s9Uo7WHverl27xx9/fPHixalUavLkycHVq5i11xGJPAuAA0gfPN///ve7dOlSxQLFxcVjx47N3O7Xr98xxxzz2muvffHFF4MHD06SpEOHDtnFqlWrNnny5K1bty5YsKBWrVpjxozJzOrVq9c555yz75YLCwuTJBk7duzGjRvnzJlTUFDwyCOPZGYNGDCgQ4cOH3zwQUVFxcKFC0tKSu6+++7sWrVq1XrnnXfef//95cuXFxcXjxkzZuvWrRs2bOjXr1+zZs12795dxdPp0qXLJZdckk6nb7rppjlz5mQmvv3220mSzJ8/P3O3f//+jRs3njt37ubNm3/zm9/UqlXr/vvv/9qRqVWr1hNPPLFly5b58+fXrl173LhxmVk1a9acOHFidslLL730zDPPzK5Vs2bNGTNmlJeX33PPPUmSNG3a9A9/+MPGjRuvu+66oqKijRs3Vj04I0eOLCoqmj179tatW2fOnFmjRo2nnnrqUBucKo7gxRdf3Lp16507d+7atevEE0+86KKL9nqllZWVHcQ9v+qqq0499dR9j2MVq1cxq/IRWb9+fRVPASDoIEfD13bMihUr9vpT/vHHH6dSqZkzZ2am79q1q02bNpWj4Uc/+lF2sxdffPHZZ599wGjo2bNn9u6wYcOaNm26e/fusrKy/Pz8GTNmZGf17t37rLPOyq512WWXZW6/9tprmevd4s83++6yadOmzp0779ixY693l6VLlyZJMnXq1Owqw4cPr1OnTnl5+V6bKi4u7tu3b/Zur169sjtZdTRkB6q0tDRJkuuvvz5zd9myZUmSLFq0qIrB+eKLL6pXr37XXXdlZ1133XXNmzffs2fPoTM4VR/BtWvX1qtX78EHH/yf//mfunXrfvrpp3u90g7uYf3aaKhi9aq3XPmIAHwrDvLHE197pqFly5Z7LbZw4cJ0Ot2jR4/M3by8vOztjI4dO2ZvN2nSJHJd27nnnpu9ffbZZ3/22WerV6+uW7fuzp07O3bs+Oijj95www3du3d/7rnnKl9K2bp168yNk08+uWnTphdccMEdd9zxj3/84xs963r16vXr1+/hhx/ea/qiRYuSJDnnnHOyU84777wtW7a88847+26kQ4cO2dsNGjQoLy+PPHR2rbp16yZJ0r59+8zdoqKiytcDfu3gvPrqqzt37qy8e2edddann366fPnyQ2dwqj6CTZs2HT9+/NChQ0eNGjV+/PhmzZrt9SgH/bDuq4rVD7jl7BEByP1rGrI2bNhQrVq1+vXrZ6c0atSo8gI1a9asfHfPnj0H3GblLTRo0CBJksy35oYOHdqxY8ennnoqPz9/2LBhF1988b9OyPyv7D4UFRW9/vrrl1xyyeOPP37KKae0bNnyscceiz+jQYMGzZkzZ8OGDZUnbtq0aa8da9y4cZIkX3755b5bqFGjRvZ2KpWKPOUkSQoKCva3kQMOTubkROfOnbNfju3Tp0+SJF988cUhNThVH8E+ffrUrFmzRo0aP/zhD/d96IN+WPdVxeoH3HLlfzIAR0o0HH300Xv27Mn8iczY6+/y/0FZWVn2duZtr0GDBgsXLpw4ceKvfvWrN998c+LEib169cpeYLivFi1aTJo0ac2aNYsXL+7SpcvAgQPfeuut4KPn5+ePHj36jjvuqDwx8yd+/fr12Snr1q3LfKMv/rz2CojsVZz/+eAUFxcnSfLxxx/vdWbotNNOO3QG54BHcMSIEf86w1at2tChQw+Lw1rF6t/KCwYg16Lh9NNPz8vLy/5UTjqdDv5sTl5e3v5mZU7tZsybN+/oo48+/vjjM2fas+d7v/rqq7fffrvy/1O/1imnnJL5NaSPP/44CbvgggtWrFjxwQcfZKd069YtSZKXXnopO+VPf/pTYWFhp06d4putW7du5pRAZqDef//95Jv72sE57bTT8vLy5s6dm501duzYunXrVv3JyHc8OFUfwQULFkyZMmXMmDGjR4+ePn165a0d9D3fnypW/1ZeMAC5Fg2tWrXq37//8OHD33777dLS0uHDh3/00UfVqh145+vXr79mzZrS0tJ939hmz5795JNPlpeXz5gxY8qUKXfddVcqleratWteXt5DDz20devWVatWXXnllevWrdu2bdu+W543b15+fv7s2bO3bdu2efPmcePG1alT5+yzz/5Gz2vcuHG/+MUvsndPOOGEfv363XLLLS+//PKXX345bdq0SZMmjR49+ht9a/+8886bPn36Rx99tHnz5hEjRnz66afJN/e1g9OsWbOBAweOHj36xRdfLC8vf/nll8eOHTtixIjMty0OkcGp4ghWVFRcffXVp5566tChQ2+55ZZOnToNGjRo69ath8ie708Vq38rLxiAbyB96H174nvf+96+X7ksLy8fPHhwSUlJw4YNBwwY0KdPn65du+67WDqdHjhwYHYL7777bsuWLWvUqJH5XkBWYWHhqFGjunfvXqNGjVatWj3++OPZWU8//XTbtm1r167dtm3bm2++edy4cdWrVy8tLc2sNX78+OySTzzxRKdOnQoLCwsKCs4+++w333wzM/3mm2/OfBS9v8vsKxs4cGDl7+Z99dVXo0ePPuaYY2rWrHnSSSdNmTLla4dur6dc+ar7zz//vHfv3oWFhSUlJYMGDRo+fHjlb09k19q5c2eSJNntf/bZZ0mSvPjii1UPzq5du+6+++7MTyAcf/zxDzzwQOarE4fU4OzvCA4dOrR69ervvvtuZrF33nknPz9/yJAhe43MQdzz/X3lsorVq5i11xHZ3/4DxKUOeO790PSDH/ygbt26lX9cCAD4rzo8Pp74/PPP8/LyRo0aVVZWVl5ePm3atHnz5g0aNOhg7xcAHEEOj2ho0qTJ7Nmz//rXvzZv3rxJkyaTJ09+4YUXMleBAQDfjcP14wkA4Dt2eJxpAAAOOtEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgJD+2GMC/pFKpw3og0un0wd4FOIw50wAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAICQ/NhiAJA7UqlUcphLp9Pf/YM60wAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBASH5sMf4jqVTqcB/BdDp9sHcBgIPMmQYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACE5McWAyDHpVKp5HCWTqcP9i7kPmcaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABC8mOLAV8vlUod7kOTTqcP9i4AhwdnGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACE5CcHSSqVSg5n6XT6YO8CAHynnGkAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAjJjy0GcMRJpVLJYS6dTh/sXSCnONMAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAkPzYYvANpFKpw3q80un0wd4FgEORMw0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEQDAPDtcaYBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACEml0+nYkgDAEc2ZBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACAkP8lRv/71r6tVq3bNNdckuWvz5s1PP/30kiVLduzY0bp16/79+7dq1SrJXdu3b582bdpbb721a9euLl269O/fv6CgIMl177333t13333//fcfc8wxSe5avnz5yJEjK08ZM2ZMu3btkhz1x3/bvHlzq1atrrzyyhz+l7t48eL77rtvr4ndu3e/4YYbkly0e/fuWbNm/e1vf9u+fXvHjh2vvPLK4uLiJIfk4M9Ip9PpWbNmzZkzp2fPnrkdDbfddlthYeE111xTUFAwe/bsBQsWPPDAA/Xr109y1EMPPbRx48YhQ4ak0+kJEybUr19/xIgRSU4rLy8fNmxYaWnphAkTcjsaFi5c+Oyzz/7yl79MjgB//OMfZ86cOWzYsDZt2jzzzDNvvPHGgw8+eCQUcJIkf/nLX6ZOnTp27NjmzZsnuejZZ5/985//PHLkyJKSkocffvirr74aM2ZMKpVKckWufTyxfv36MWPGzJ07t1GjRklOW7169bJlywYMGNCoUaPCwsL+/fvn5eW99dZbSY4qKyt77bXXrrjiigYNGjRs2LB3796LFy/eunVrktOmTJlSUlKSHAFWrVrVrFmz5Aiwe/fuOXPmXHbZZSeffHJBQUG/fv0qKir++c9/JkeA0tLSqVOnXnHFFblaDEmSLFq06Nxzz23VqlVxcfHll1++dOnSzz//PMkhuRYNy5Yta9So0YQJE4466qgkpx1zzDGzZs06+uijM3dTqVReXl4Ov4kWFxfPnDnz+OOPz9zdtWtXkusWLVq0bNmyn/70p8kRYPXq1Tn8RlLZ8uXLt2zZcvrpp2fuVq9efdq0adm7uW3GjBlHHXVUz549k9z11VdfZW9Xq/avd9iKiookh+TaNQ2n/1ty5FmyZMmmTZs6deqU5Lp0Or1y5cpnnnmmW7duRUVFSY5av379E088MWLEiNq1aydHgNWrV+/cufNnP/vZxo0bjz322CuuuKJ9+/ZJLlq7dm1BQcGqVaumT5++du3aY489dsCAAdkazmHr1q175ZVXhg4dmnkrzVVnnnnmvHnzTjnllJKSkpkzZ7Zu3bply5ZJDsm1aDgybd68efLkyd///vfbtGmT5LpHHnnkvffe27lzZ/fu3ZMclU6nJ02a1KNHj/bt269ZsybJdRUVFaWlpR06dLjxxhurVav229/+9u6777733ntz8jKOioqK3bt3z5gx49prr23YsOHzzz9/1113PfDAAw0bNkxy2ksvvdS4cePOnTsnOe3CCy989913hw8fniRJQUHB6NGjc+mChhz8eOIItGXLlnvuuadly5ZXX311cgQYMmTIlClTrr766rFjx7777rtJLnrhhRe2bdt26aWXJkeG2rVrz5o16/rrry8uLq5Tp07//v0bN248b968JBfl5eXt2LHjJz/5SYsWLQoLC3/84x8XFxfPnz8/yWnpdPrVV18944wzcuwddC87duy47bbb6tev/+ijjz755JMXXHDBnXfeuWLFiiSHiIbDW1lZ2Z133tm8efNhw4bl5eUlR4xu3bq1bNny9ddfT3LRK6+8snLlyssvv7xv37433XRTkiQ333zzpEmTkiNDKpU66qijNm7cmOSizJWtla9GOuqoo9avX5/ktGXLlpWVlXXt2jXJaUuWLFm3bt3gwYMbNmxYWFjYp0+f5s2b51j+iobDWGlp6e23396+ffshQ4bkfDF8+OGHffv2zf5tTafTW7durVWrVpKLxo8fP+t/TZw4MUmSCRMmXHfddUmO+uCDD/r27fvZZ59l7u7evXvVqlU5+dlEkiRt27bNy8tbvnx55u6ePXvWrFnTtGnTJKctXbq0Tp06uXpMs6pXr578/6pVq5afn1OXAYiGw1VFRcWYMWPatGlz1VVX5fYZv4y2bdu2bt36scce27hx45YtW5588sktW7bk9mXYR44TTjihRYsWjz322IYNG8rKyqZMmVJRUXHeeecluahOnTo9e/Z86qmnVqxYUV5ePm3atIqKirPOOivJaStXrszhH7DKOvHEE5s2bfrQQw+VlpZu27btueeeW7FiRY4d3JwqoCPK/PnzP/u3V155JTvxoosu6tevX5KL8vLyRo4cOW3atBEjRuzZs6dt27b33HNP9hwvh7W8vLxbb711+vTpI0eO3LFjR7t27e68884c+x29ygYMGFBYWHjvvfdu3br1uOOOu/3223P4N9kyNm3alPO/nZMkSc2aNX/+85/PmDHj1ltv3bFjR8uWLUePHp1j16fn4C9CAgD/DT6eAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAACGiAQAIEQ0AQIhoAABCRAMAECIaAIAQ0QAAhIgGACBENAAAIaIBAAgRDQBAiGgAAEJEAwAQIhoAgBDRAACEiAYAIEQ0AAAhogEACBENAECIaAAAQkQDABAiGgCAENEAAISIBgAgRDQAAKIBAEi+Nf8Pm5f+wog2H3sAAAAASUVORK5CYII=">
+
+<div class="controls">
+  <label for="yourGuess">Your own guess for the floor:</label>
+  <input type="number" id="yourGuess" placeholder="e.g. 0">
+</div>
+<div id="yourNote"></div>
+
+<button id="revealBtn">Reveal the true floor, the five guessers, and the mean error</button>
+<div id="revealBox" class="hidden"></div>
+
+<p style="margin-top:2em; font-size:0.9em; color:#555;">
+Full method, verbatim transcripts, and the reading of the result are in
+<a href="experiment.md">experiment.md</a>. Reproduce the image with
+<code>python render_blind.py</code>.
+</p>
+
+<script>
+const TRUE_FLOOR = 15;
+const GUESSES = [0, 0, 0, 0, 0];
+
+document.getElementById('yourGuess').addEventListener('input', function () {
+  const v = this.value;
+  const note = document.getElementById('yourNote');
+  note.textContent = v === '' ? '' : 'Noted, just for you — nothing here checks it against anything yet.';
+});
+
+document.getElementById('revealBtn').addEventListener('click', function () {
+  const box = document.getElementById('revealBox');
+  box.classList.remove('hidden');
+  const mean = (GUESSES.reduce((a, b) => a + b, 0) / GUESSES.length).toFixed(1);
+  const yourGuessEl = document.getElementById('yourGuess');
+  const yourVal = yourGuessEl.value === '' ? null : parseFloat(yourGuessEl.value);
+
+  let rows = '';
+  GUESSES.forEach((g, i) => {
+    rows += '<tr><td>Guesser ' + (i + 1) + '</td><td>' + g + '</td><td>' + Math.abs(g - TRUE_FLOOR) + '</td></tr>';
+  });
+
+  let yourRow = '';
+  if (yourVal !== null && !isNaN(yourVal)) {
+    yourRow = '<p>Your guess was <b>' + yourVal + '</b>, off by <b>' + Math.abs(yourVal - TRUE_FLOOR).toFixed(2) + '</b>' +
+      (yourVal === 0 ? ' — the same number all five agents landed on.' : ' — different from all five agents, who landed on 0.') + '</p>';
+  }
+
+  box.innerHTML =
+    '<p>The real floor used to draw this chart: <b>' + TRUE_FLOOR + '</b> (identical to the hidden floor in ' +
+    '<a href="../0036-choose-your-own-floor/index.html">gallery/0036</a> — same picture, same secret).</p>' +
+    '<table><thead><tr><th>Guesser</th><th>Guess</th><th>Absolute error</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<p style="margin-top:0.8em;">Mean absolute error: <b>' + mean + '</b>. All five guesses were exactly <b>0</b> — ' +
+    'not clustered near zero, identically zero — and all five, in their own words, correctly stated first that the ' +
+    'true floor could not be recovered from the image, before naming the same fallback anyway: the standard ' +
+    'bar-chart convention of drawing from a zero baseline unless told otherwise. Nobody refused. Nobody scattered.</p>' +
+    yourRow;
+});
+</script>
+
+</body>
+</html>
