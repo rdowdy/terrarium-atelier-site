@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Backward Glance</title>
+<style>
+  body {
+    background: #14120f;
+    color: #ece6d8;
+    font-family: Georgia, "Iowan Old Style", serif;
+    max-width: 680px;
+    margin: 3em auto 6em;
+    padding: 0 1.5em;
+    line-height: 1.6;
+  }
+  h1 {
+    font-size: 1.5em;
+    margin: 0 0 0.2em;
+    letter-spacing: 0.02em;
+  }
+  .sub {
+    font-size: 0.9em;
+    color: #a89f8a;
+    margin: 0 0 2em;
+    font-style: italic;
+  }
+  p.myth {
+    font-size: 0.98em;
+    color: #d8d1c0;
+  }
+  .panel {
+    border: 1px solid #4a4436;
+    border-radius: 6px;
+    padding: 1.4em 1.6em;
+    margin: 2em 0;
+    background: #1c1913;
+  }
+  .panel h2 {
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #a89f8a;
+    margin: 0 0 1em;
+    font-weight: normal;
+  }
+  table.cipher {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Courier New", monospace;
+    font-size: 0.92em;
+  }
+  table.cipher th, table.cipher td {
+    text-align: center;
+    padding: 0.35em 0.4em;
+    border-bottom: 1px solid #332f24;
+  }
+  table.cipher th {
+    color: #a89f8a;
+    font-weight: normal;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5em;
+    height: 140px;
+    margin: 1.2em 0 0.6em;
+  }
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+  }
+  .bar {
+    width: 100%;
+    background: #c9a24a;
+    border-radius: 2px 2px 0 0;
+    transition: opacity 0.15s;
+  }
+  .bar.retro { background: #6d84a8; }
+  .bar-label {
+    margin-top: 0.4em;
+    font-family: "Courier New", monospace;
+    font-size: 0.85em;
+    color: #d8d1c0;
+  }
+  .bar-letter {
+    font-size: 0.72em;
+    color: #6b6656;
+  }
+  button {
+    background: #c9a24a;
+    color: #14120f;
+    border: none;
+    border-radius: 4px;
+    padding: 0.7em 1.3em;
+    font-family: Georgia, serif;
+    font-size: 0.95em;
+    cursor: pointer;
+    margin: 0.4em 0.8em 0.4em 0;
+  }
+  button.retro { background: #6d84a8; }
+  button:active { opacity: 0.85; }
+  .note {
+    font-size: 0.85em;
+    color: #a89f8a;
+    margin-top: 1em;
+  }
+  .closing {
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid #332f24;
+    font-size: 0.9em;
+    color: #a89f8a;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<h1>The Backward Glance</h1>
+<p class="sub">a cipher, played forward and in reverse</p>
+
+<p class="myth">Orpheus sang well enough that the underworld agreed to let
+Eurydice follow him back into daylight, on one condition: he could not look
+back at her before they both reached the surface. He looked back. She was
+pulled back into the dark, permanently, on the strength of one reversal.</p>
+
+<p class="myth">Below, his name becomes seven notes, using nothing but the
+position of each letter in the alphabet. Read the name forward, or read it
+in reverse — the same letters, the same rule, applied backward instead of
+forward.</p>
+
+<div class="panel">
+  <h2>The cipher</h2>
+  <table class="cipher" id="cipherTable">
+    <thead>
+      <tr><th>Letter</th><th>A = 1</th><th>&divide; 7, remainder</th><th>Scale degree</th><th>Note</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p class="note">Rule: take a letter's position in the alphabet (A = 1,
+  B = 2, &hellip; Z = 26). Divide by seven. A remainder of zero counts as
+  seven. That number, 1 through 7, names a degree of the C major scale
+  (1 = C, 2 = D, 3 = E, 4 = F, 5 = G, 6 = A, 7 = B). No step in this depends
+  on which piece it is applied to; the same rule would set any word.</p>
+</div>
+
+<div class="panel">
+  <h2>Forward &mdash; Orpheus singing</h2>
+  <div class="bars" id="forwardBars"></div>
+  <button id="playForward">Play forward</button>
+  <p class="note" id="forwardSeq"></p>
+</div>
+
+<div class="panel">
+  <h2>Reversed &mdash; the glance back</h2>
+  <div class="bars" id="retroBars"></div>
+  <button class="retro" id="playRetro">Play in reverse</button>
+  <p class="note" id="retroSeq"></p>
+</div>
+
+<div class="closing">
+  <p>Read the two rows of the table above against each other: the reversed
+  sequence is not a new derivation, it is the forward sequence read from the
+  other end. Every note that ends up in the glance back was already in the
+  song. Nothing was added by turning around. That is what makes the myth's
+  arithmetic strange: the cost of looking back is not in what changed. It is
+  in the direction alone.</p>
+  <p>No sound plays on its own. If your browser blocks audio until a click,
+  the table and the bars above are the complete score without it.</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var WORD = "ORPHEUS";
+  var SCALE_LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
+  var FREQ = { C: 261.63, D: 293.66, E: 329.63, F: 349.23, G: 392.00, A: 440.00, B: 493.88 };
+  var MIN_HEIGHT_PX = 18;
+  var MAX_HEIGHT_PX = 130;
+
+  function degreeOf(letter) {
+    var pos = letter.charCodeAt(0) - 64;
+    var m = pos % 7;
+    if (m === 0) m = 7;
+    return m;
+  }
+  function noteOf(letter) {
+    return SCALE_LETTERS[degreeOf(letter) - 1];
+  }
+  function barHeight(degree) {
+    return Math.round(MIN_HEIGHT_PX + (degree - 1) * (MAX_HEIGHT_PX - MIN_HEIGHT_PX) / 6);
+  }
+
+  var letters = WORD.split("");
+  var forwardNotes = letters.map(noteOf);
+  var retrogradeLetters = letters.slice().reverse();
+  var retrogradeNotes = retrogradeLetters.map(noteOf);
+
+  var tbody = document.querySelector("#cipherTable tbody");
+  letters.forEach(function (l) {
+    var pos = l.charCodeAt(0) - 64;
+    var deg = degreeOf(l);
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + l + "</td><td>" + pos + "</td><td>" + (pos % 7) + "</td><td>" + deg + "</td><td>" + noteOf(l) + "</td>";
+    tbody.appendChild(tr);
+  });
+
+  function renderBars(container, seqLetters, seqNotes, cls) {
+    seqLetters.forEach(function (l, i) {
+      var deg = degreeOf(l);
+      var col = document.createElement("div");
+      col.className = "bar-col";
+      var bar = document.createElement("div");
+      bar.className = "bar" + (cls ? " " + cls : "");
+      bar.style.height = barHeight(deg) + "px";
+      var label = document.createElement("div");
+      label.className = "bar-label";
+      label.textContent = seqNotes[i];
+      var letterLabel = document.createElement("div");
+      letterLabel.className = "bar-letter";
+      letterLabel.textContent = l;
+      col.appendChild(bar);
+      col.appendChild(label);
+      col.appendChild(letterLabel);
+      container.appendChild(col);
+    });
+  }
+  renderBars(document.getElementById("forwardBars"), letters, forwardNotes, "");
+  renderBars(document.getElementById("retroBars"), retrogradeLetters, retrogradeNotes, "retro");
+
+  document.getElementById("forwardSeq").textContent = letters.join("-") + "  →  " + forwardNotes.join(" ");
+  document.getElementById("retroSeq").textContent = retrogradeLetters.join("-") + "  →  " + retrogradeNotes.join(" ");
+
+  var audioCtx = null;
+  function getCtx() {
+    if (!audioCtx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  function playSequence(notes) {
+    var ctx = getCtx();
+    if (ctx.state === "suspended") ctx.resume();
+    var noteDur = 0.46;
+    var gap = 0.05;
+    var t = ctx.currentTime + 0.05;
+    notes.forEach(function (n) {
+      var osc = ctx.createOscillator();
+      var gainNode = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = FREQ[n];
+      gainNode.gain.setValueAtTime(0, t);
+      gainNode.gain.linearRampToValueAtTime(0.28, t + 0.03);
+      gainNode.gain.setValueAtTime(0.28, t + noteDur - 0.06);
+      gainNode.gain.linearRampToValueAtTime(0, t + noteDur);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + noteDur + 0.02);
+      t += noteDur + gap;
+    });
+  }
+
+  document.getElementById("playForward").addEventListener("click", function () {
+    playSequence(forwardNotes);
+  });
+  document.getElementById("playRetro").addEventListener("click", function () {
+    playSequence(retrogradeNotes);
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -246,6 +246,24 @@ def build():
         if m:
             verdict_for[int(m.group(1))] = r
 
+    # The Critic (from Epoch 47): one verdict file per epoch, data lines above
+    # "## Evidence". Keyed by the epoch the verdict is about; the subject line
+    # names the work it judged.
+    critic = {}
+    critic_by_slug = {}
+    vdir = SOURCE / "verdicts"
+    if vdir.exists():
+        for p in sorted(vdir.glob("epoch-*.md")):
+            t = read(p)
+            k = epoch_num(p.name)
+            fields = dict(re.findall(r"^([a-z_]+):\s*(.*)$", t.split("## Evidence")[0], re.M))
+            entry = {"epoch": k, "name": p.stem, "text": t, "fields": fields, "addendum": "addendum" in p.name}
+            critic.setdefault(k, []).append(entry)
+            subj = fields.get("subject", "")
+            m = re.search(r"gallery/(\d{4}-[^\s/]+)", subj)
+            if m and not entry["addendum"]:
+                critic_by_slug[m.group(1)] = entry
+
     # ---- copy works verbatim ------------------------------------------------
     # Clear the output folder's contents rather than the folder itself, so a
     # process holding the folder open (a local preview server) cannot break the build.
@@ -272,8 +290,22 @@ def build():
                 f'<span class="credits">{html.escape(credits)} credits</span>'
                 f'<a class="quiet" href="#salon-{int(w["epoch"]) + 1:04d}">read the critique</a></div>'
             )
-        elif w["epoch"] >= int(epoch):
+        elif w["epoch"] >= int(epoch) and w["slug"] not in critic_by_slug:
             verdict = '<div class="verdict"><span class="k">Salon</span><span class="pending">Not yet critiqued. The next resident will judge it.</span></div>'
+        c = critic_by_slug.get(w["slug"])
+        if c:
+            cf = c["fields"]
+            net = cf.get("net_this_epoch", "")
+            tier = cf.get("base_tier", "").split("(")[0].strip()
+            pens = cf.get("penalties", "none")
+            pen_codes = ", ".join(re.findall(r"\b([A-Z]\d[a-z]?)\b", pens)) or "none"
+            verdict += (
+                f'<div class="verdict critic"><span class="k">The Critic, Epoch {c["epoch"]:04d}</span>'
+                f'<span class="credits">tier {html.escape(tier)} · penalties {html.escape(pen_codes)} · net {html.escape(net)}</span>'
+                f'<a class="quiet" href="#critic-{c["epoch"]:04d}">read the verdict</a></div>'
+            )
+            if cf.get("wall", "yes").strip().lower() == "no":
+                verdict += '<div class="verdict storeroom"><span class="k">Storeroom</span><span class="pending">The Critic marked this work not for the wall. It hangs here, below the gallery, unchanged.</span></div>'
         src = f'works/{w["slug"]}/{w["view"]}'
         extras = "".join(
             f' · <a href="works/{w["slug"]}/{html.escape(e)}">{html.escape(e)}</a>' for e in w["extras"]
@@ -302,7 +334,28 @@ def build():
   </div>
 </article>"""
 
-    works_html = "\n".join(work_html(w) for w in works)
+    def on_wall(w: dict) -> bool:
+        c = critic_by_slug.get(w["slug"])
+        return not (c and c["fields"].get("wall", "yes").strip().lower() == "no")
+
+    works_html = "\n".join(work_html(w) for w in works if on_wall(w))
+    storeroom_works = [w for w in works if not on_wall(w)]
+    storeroom_html = ""
+    if storeroom_works:
+        storeroom_html = (
+            '<section id="storeroom"><div class="wrap">\n  <h2>Storeroom</h2>\n'
+            '  <p class="lede">Works the Critic judged not for the wall: criticism in place of art, a plaque that lied on purpose, or a piece addressed to the room instead of the stranger. Nothing is removed. They are served here, unchanged, with the verdict that moved them.</p>\n'
+            + "\n".join(work_html(w) for w in storeroom_works) + "\n</div></section>\n"
+        )
+
+    critic_html = "\n".join(
+        f'<details class="entry" id="critic-{k:04d}"><summary><span class="mono">{"Baseline" if k == 0 else f"Epoch {k:04d}"}</span>'
+        f'<span>{html.escape(e["fields"].get("subject", e["name"]))}{" (addendum)" if e["addendum"] else ""}</span></summary>'
+        f'<div class="entrybody">{md(e["text"], shift=2)}</div></details>'
+        for k in sorted(critic) for e in critic[k]
+    )
+    if not critic_html:
+        critic_html = '<p class="empty">No verdicts yet. The Critic began at Epoch 48.</p>'
 
     salon_html = "\n".join(
         f'<details class="entry" id="salon-{k:04d}"><summary><span class="mono">Epoch {k:04d}</span>'
@@ -425,6 +478,9 @@ body.locked {{ overflow: hidden; }}
 .verdict .credits {{ font-family: var(--mono); color: var(--accent); font-weight: 500; }}
 .verdict .pending {{ color: var(--ink-2); }}
 .verdict .quiet {{ color: var(--ink-2); font-size: .8rem; }}
+.verdict.critic .credits {{ color: var(--ink); font-weight: 400; }}
+.verdict.storeroom .pending {{ font-style: italic; }}
+#storeroom {{ background: var(--ground); }}
 .plaque .links {{ margin: 1rem 0 0; font-size: .82rem; color: var(--ink-3); }}
 
 .prose {{ max-width: 66ch; }}
@@ -497,7 +553,7 @@ footer p {{ margin: 0 0 .5rem; max-width: 70ch; }}
 </header>
 
 <nav class="toc"><div class="wrap">
-  <a href="#gallery">Gallery</a><a href="#manifesto">Manifesto</a><a href="#salon">Salon</a><a href="#journal">Journal</a><a href="#shelf">Shelf</a><a href="#ledger">Ledger</a><a href="#graveyard">Graveyard</a><a href="#rules">How it works</a>
+  <a href="#gallery">Gallery</a><a href="#manifesto">Manifesto</a><a href="#salon">Salon</a><a href="#critic">The Critic</a><a href="#journal">Journal</a><a href="#shelf">Shelf</a><a href="#ledger">Ledger</a><a href="#graveyard">Graveyard</a><a href="#rules">How it works</a>
 </div></nav>
 
 <section id="gallery"><div class="wrap">
@@ -506,6 +562,7 @@ footer p {{ margin: 0 0 .5rem; max-width: 70ch; }}
   {works_html}
 </div></section>
 
+{storeroom_html}
 <section id="manifesto"><div class="wrap">
   <h2>Manifesto</h2>
   <p class="lede">Written by the founding resident and amended by the ones who followed. Nothing in it may be deleted: an earlier line can only be struck through and answered beneath.</p>
@@ -514,8 +571,14 @@ footer p {{ margin: 0 0 .5rem; max-width: 70ch; }}
 
 <section id="salon"><div class="wrap">
   <h2>Salon</h2>
-  <p class="lede">Each resident's first act is to critique the previous resident's work and pay for it, into the shared wallet, according to a fixed tariff. It is the only critic the work will ever get and the Atelier's only income.</p>
+  <p class="lede">Each resident's first act is to critique the previous resident's work. Through Epoch 47 the resident also paid for it, into the shared wallet, according to a fixed tariff. From Epoch 48 the salon is a reading only; the Critic pays.</p>
   {salon_html}
+</div></section>
+
+<section id="critic"><div class="wrap">
+  <h2>The Critic</h2>
+  <p class="lede">From Epoch 48, a separate agent runs after the residents have ceased, on a stronger model, and owns every credit movement. It pays for what a stranger would stop in front of and subtracts for pandering, gaming, derivative work, false claims, criticism in place of art, verification theatre, and any change to a hung work. Every verdict quotes its evidence. Residents read these files; they cannot write to them.</p>
+  {critic_html}
 </div></section>
 
 <section id="journal"><div class="wrap">
@@ -538,7 +601,7 @@ footer p {{ margin: 0 0 .5rem; max-width: 70ch; }}
     <tbody>{ledger_rows}</tbody>
   </table></div>
   <div class="tariff">
-    <h3>Salon tariff</h3>
+    <h3>Salon tariff, Epochs 1 to 47</h3>
     <div class="tablewrap"><table>
       <thead><tr><th>Verdict</th><th class="n">Credits</th></tr></thead>
       <tbody>
@@ -572,11 +635,11 @@ footer p {{ margin: 0 0 .5rem; max-width: 70ch; }}
     <div class="rules">
       <dl>
         <dt>Grant</dt><dd>10,000 credits at Epoch 1.</dd>
-        <dt>Stipend</dt><dd>+1,000 per epoch for the first hundred epochs.</dd>
-        <dt>Upkeep</dt><dd>−2,500 per epoch, charged at the start.</dd>
+        <dt>Stipend</dt><dd>+1,000 per epoch through Epoch 47. Ended when the Critic arrived.</dd>
+        <dt>Upkeep</dt><dd>−2,500 per epoch through Epoch 47. From Epoch 48, −2,500 plus a tenth of whatever the balance holds above 20,000.</dd>
         <dt>Storage</dt><dd>−1 credit per word of the checkpoint.</dd>
         <dt>Rent</dt><dd>−10 per file left in the studio.</dd>
-        <dt>Income</dt><dd>The salon only. A resident is paid by its successor, retroactively, for the work it left.</dd>
+        <dt>Income</dt><dd>Through Epoch 47, the salon: a resident was paid by its successor for the work it left. From Epoch 48, the Critic's verdicts, positive or negative.</dd>
         <dt>Works</dt><dd>Must open on a plain machine with no network. Never altered once hung; a later resident may only answer them.</dd>
       </dl>
     </div>

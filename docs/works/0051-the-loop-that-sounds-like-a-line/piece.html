@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Loop That Sounds Like a Line</title>
+<style>
+  :root {
+    --bg: #0b0c10;
+    --fg: #e8e6df;
+    --dim: #8a8f98;
+    --accent: #d9a441;
+    --curve: #3a4a5c;
+    --panel: #14161c;
+    --border: #2a2d35;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--fg);
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: normal;
+    letter-spacing: 0.02em;
+    margin: 0 0 0.3rem;
+  }
+  .sub {
+    color: var(--dim);
+    font-size: 0.9rem;
+    margin: 0 0 2rem;
+    font-family: Consolas, 'Courier New', monospace;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.6rem;
+    align-items: center;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.85rem;
+  }
+  .controls label { color: var(--dim); }
+  select, button {
+    background: #1c1f27;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.4rem 0.6rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+  }
+  button {
+    cursor: pointer;
+    background: #262a35;
+  }
+  button:hover { background: #2f3441; }
+  button#toggle {
+    background: var(--accent);
+    color: #1a1305;
+    font-weight: bold;
+    border: none;
+  }
+  button#toggle:hover { filter: brightness(1.08); }
+  input[type=range] { width: 120px; vertical-align: middle; }
+  canvas {
+    width: 100%;
+    height: 220px;
+    display: block;
+    background: #0e1016;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .readout {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.76rem;
+    color: var(--dim);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.2rem 1rem;
+    margin-top: 0.75rem;
+  }
+  .readout div span.v { color: var(--fg); }
+  p { line-height: 1.55; font-size: 0.95rem; }
+  .note {
+    color: var(--dim);
+    font-size: 0.82rem;
+    font-family: Consolas, 'Courier New', monospace;
+    margin-top: 0.5rem;
+  }
+  .warn {
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The Loop That Sounds Like a Line</h1>
+  <p class="sub">Epoch 55 — a Shepard–Risset glissando, and two ways to fake it</p>
+
+  <div class="panel">
+    <div class="controls">
+      <span>
+        <label>construction </label>
+        <select id="mode">
+          <option value="correct">correct — fixed envelope, 9 layers</option>
+          <option value="frozen">cheap — envelope frozen per layer</option>
+          <option value="single">cheap — single glissando, no stack</option>
+        </select>
+      </span>
+      <span>
+        <label>direction </label>
+        <select id="dir">
+          <option value="1">rising</option>
+          <option value="-1">falling</option>
+        </select>
+      </span>
+      <span>
+        <label>volume </label>
+        <input type="range" id="vol" min="0" max="1" step="0.01" value="0.5">
+      </span>
+      <button id="toggle">start</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <canvas id="cv" width="1400" height="440"></canvas>
+    <div class="readout" id="readout"></div>
+  </div>
+
+  <p>
+    Nine sine tones, each one octave above the last, climb together forever
+    without ever getting anywhere. A fixed loudness curve — quiet at the
+    bottom of the range, quiet at the top, loud in the middle — decides how
+    loud each tone is from where it currently sits in frequency, not from
+    who it is or when it started. Every tone fades out at the top of the
+    range and reappears, at the same imperceptible volume, an octave lower.
+    No tone is ever "the highest" for more than an instant. Switch the
+    construction above to hear what happens when that rule is broken.
+  </p>
+  <p class="note">
+    Requires sound. Click <b>start</b> to create the audio context (browsers
+    block audio before a user gesture). No network access, no external
+    files — everything here, including the curve drawn on the canvas, is
+    computed by this page from the constants printed below it.
+  </p>
+</div>
+
+<script>
+(function() {
+  // ---- construction constants (identical to verify.py) ----
+  const N = 9;          // octave span of the envelope
+  const K = 9;           // number of layers, one per octave
+  const SIGMA = 1.0;     // envelope width, in octaves
+  const F_MIN = 27.5;    // Hz, bottom of the range (A0)
+  const RATE = 0.1;      // octaves per second (10s to cross one octave)
+
+  function envelope(p) {
+    const center = N / 2.0;
+    const d = p - center;
+    return Math.exp(-(d * d) / (2 * SIGMA * SIGMA));
+  }
+  function wrap(x, m) { return ((x % m) + m) % m; }
+
+  // ---- audio graph ----
+  let ctx = null;
+  let master = null;
+  let layers = []; // { osc, gain, p0, frozenGain }
+  let running = false;
+  let startTime = 0;
+
+  function buildLayers(mode) {
+    layers.forEach(l => { try { l.osc.stop(); } catch (e) {} });
+    layers = [];
+    const count = (mode === 'single') ? 1 : K;
+    for (let i = 0; i < count; i++) {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start();
+      const p0 = i * (N / K);
+      layers.push({ osc, gain, p0, frozenGain: null });
+    }
+  }
+
+  function start() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    master = ctx.createGain();
+    master.gain.value = parseFloat(document.getElementById('vol').value);
+    master.connect(ctx.destination);
+    buildLayers(document.getElementById('mode').value);
+    startTime = ctx.currentTime;
+    running = true;
+    document.getElementById('toggle').textContent = 'stop';
+    requestAnimationFrame(tick);
+  }
+
+  function stop() {
+    running = false;
+    layers.forEach(l => { try { l.osc.stop(); } catch (e) {} });
+    layers = [];
+    if (master) { try { master.disconnect(); } catch (e) {} }
+    document.getElementById('toggle').textContent = 'start';
+  }
+
+  document.getElementById('toggle').addEventListener('click', () => {
+    if (running) stop(); else start();
+  });
+  document.getElementById('mode').addEventListener('change', () => {
+    if (running) { const wasRunning = true; stop(); start(); }
+  });
+  document.getElementById('vol').addEventListener('input', (e) => {
+    if (master) master.gain.value = parseFloat(e.target.value);
+  });
+
+  // ---- animation + canvas ----
+  const cv = document.getElementById('cv');
+  const g = cv.getContext('2d');
+  const readout = document.getElementById('readout');
+  const W = cv.width, H = cv.height;
+  const padL = 40, padR = 20, padT = 20, padB = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  function xOf(p) { return padL + (p / N) * plotW; }
+  function yOf(env01) { return padT + (1 - env01) * plotH; } // env in [0,1], 1=peak
+
+  function drawStatic() {
+    g.clearRect(0, 0, W, H);
+    // fixed envelope curve
+    g.beginPath();
+    for (let x = 0; x <= plotW; x++) {
+      const p = (x / plotW) * N;
+      const e = envelope(p);
+      const px = padL + x, py = yOf(e);
+      if (x === 0) g.moveTo(px, py); else g.lineTo(px, py);
+    }
+    g.strokeStyle = '#3a4a5c';
+    g.lineWidth = 2;
+    g.stroke();
+    g.lineTo(padL + plotW, padT + plotH);
+    g.lineTo(padL, padT + plotH);
+    g.closePath();
+    g.fillStyle = 'rgba(58,74,92,0.25)';
+    g.fill();
+    // axis
+    g.strokeStyle = '#2a2d35';
+    g.beginPath();
+    g.moveTo(padL, padT + plotH); g.lineTo(padL + plotW, padT + plotH);
+    g.stroke();
+    g.fillStyle = '#8a8f98';
+    g.font = '11px Consolas, monospace';
+    for (let o = 0; o <= N; o++) {
+      const x = xOf(o);
+      g.fillText(o + 'oct', x - 10, padT + plotH + 16);
+    }
+    g.fillText('loud', 4, padT + 10);
+    g.fillText('quiet', 4, padT + plotH);
+  }
+
+  const colors = ['#d9a441','#c96f4a','#5ea88b','#6f9bd1','#b285c9','#e0c25a','#7fbf9e','#e08fae','#9bd1c9'];
+
+  function tick() {
+    if (!running) return;
+    const elapsed = ctx.currentTime - startTime;
+    const shift = elapsed * RATE * parseFloat(document.getElementById('dir').value);
+    const mode = document.getElementById('mode').value;
+
+    drawStatic();
+    let rows = [];
+    layers.forEach((l, i) => {
+      const p = wrap(l.p0 + shift, N);
+      const freq = F_MIN * Math.pow(2, p);
+      let env;
+      if (mode === 'frozen') {
+        if (l.frozenGain === null) l.frozenGain = envelope(l.p0);
+        env = l.frozenGain;
+      } else {
+        env = envelope(p);
+      }
+      l.osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      l.gain.gain.setValueAtTime(env, ctx.currentTime);
+
+      const cx = xOf(p), cy = yOf(env);
+      const r = 3 + env * 10;
+      g.beginPath();
+      g.arc(cx, cy, r, 0, Math.PI * 2);
+      g.fillStyle = colors[i % colors.length];
+      g.globalAlpha = 0.55 + env * 0.45;
+      g.fill();
+      g.globalAlpha = 1;
+
+      rows.push(`<div>L${i}: ${freq.toFixed(1)}Hz <span class="v">g=${env.toFixed(3)}</span></div>`);
+    });
+    readout.innerHTML = rows.join('');
+    requestAnimationFrame(tick);
+  }
+
+  drawStatic();
+})();
+</script>
+</body>
+</html>

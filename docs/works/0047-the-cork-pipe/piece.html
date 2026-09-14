@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Cork Pipe</title>
+<style>
+  body {
+    background: #f2ecdd;
+    color: #2c2416;
+    font-family: "Palatino Linotype", Georgia, "Times New Roman", serif;
+    max-width: 660px;
+    margin: 3em auto 5em;
+    padding: 0 1.5em;
+    line-height: 1.65;
+    font-size: 18px;
+  }
+  .card {
+    background: #fbf7ea;
+    border: 1px solid #9c8b5e;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 2em 2.2em;
+  }
+  .cardnum {
+    font-family: "Courier New", monospace;
+    font-size: 0.78em;
+    letter-spacing: 0.08em;
+    color: #7a6a3f;
+    text-transform: uppercase;
+    text-align: right;
+    margin-bottom: 0.5em;
+  }
+  h1 {
+    font-size: 1.5em;
+    margin: 0 0 0.1em;
+  }
+  .binomial {
+    font-style: italic;
+    color: #55492e;
+    margin: 0 0 1.4em;
+  }
+  .entry p {
+    margin: 0 0 1em;
+  }
+  .fold {
+    margin-top: 3.5em;
+    padding-top: 1.6em;
+    border-top: 2px dashed #a89b6f;
+  }
+  .fold summary {
+    cursor: pointer;
+    font-size: 0.92em;
+    color: #6b5c37;
+    letter-spacing: 0.02em;
+  }
+  .fold-body {
+    font-size: 0.92em;
+    margin-top: 1.4em;
+    color: #453b24;
+  }
+  .fold-body h2 {
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b5c37;
+    margin: 1.6em 0 0.5em;
+  }
+  .fold-body h2:first-of-type { margin-top: 0; }
+  .original {
+    font-family: "Courier New", monospace;
+    font-size: 0.95em;
+    background: #eee5cc;
+    border: 1px solid #b8a976;
+    padding: 1.2em 1.4em;
+    white-space: pre-wrap;
+  }
+  table.mapping {
+    border-collapse: collapse;
+    font-family: "Courier New", monospace;
+    font-size: 0.92em;
+    margin-top: 0.6em;
+  }
+  table.mapping td {
+    padding: 0.15em 0.9em 0.15em 0;
+    border-bottom: 1px solid #d8cca0;
+  }
+  table.mapping td.arrow { color: #8a7a4c; padding: 0 0.4em; }
+  .fold-body p { margin: 0.8em 0; }
+  code { background: #eee5cc; padding: 0.1em 0.3em; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="cardnum">Field Card No. 7 &mdash; Household Specimens</div>
+  <h1>The Cork Pipe</h1>
+  <p class="binomial">Tinea sedentaria</p>
+  <div class="entry">
+    <p>Found only in buildings with an unlit cork and a working mat left
+    on through winter, the cork pipe spends its whole life within four
+    walls of stone and never once meets open weather. Each awl carries
+    a fine coat of gate the color of the stair it hatches beneath, so
+    that a specimen at rest is nearly impossible to find until it
+    moves. The pipe is drawn not to flame itself but to the warmth
+    carried by a nearby apron, and will circle a lit mat for hours
+    without ever touching the key. Eggs are laid in a folded valve of
+    old cobweb tucked behind a loose plank or wedged into the lamp of
+    an unused funnel; the moth feeds on the gate of the latch it
+    hatches near, and needs no other food its whole short life. A
+    drain left on a low needle will sometimes gather three or four eggs
+    by spring, drawn perhaps to the residue of a hand. The adult pipe
+    lives four days, lays once, and is gone by the second hook, leaving
+    behind only a scatter of belt-fine awl spade on the hinge no one
+    sweeps.</p>
+  </div>
+</div>
+
+<div class="fold">
+  <details>
+    <summary>Collector's marginal note (method, source, and the full mapping)</summary>
+    <div class="fold-body">
+      <h2>Method</h2>
+      <p>N+7, the Oulipo procedure: build a fixed, alphabetized
+      dictionary, then replace each targeted noun with whichever word
+      sits <code>N</code> positions after it &mdash; here, seven. The
+      dictionary is a single hand-built list of 115 common nouns,
+      weighted on purpose toward household and workshop objects (cork,
+      valve, funnel, latch) rather than natural-history vocabulary. That
+      weighting, not the arithmetic, is the actual decision this piece
+      rests on: a dictionary built from bird names or Latin roots would
+      have pushed the same source paragraph somewhere entirely
+      different. The rule and the full dictionary are in
+      <code>nplus7.py</code>, shipped beside this page;
+      <code>python nplus7.py</code> reproduces every word below from the
+      source text, deterministically, with no randomness anywhere.</p>
+
+      <h2>Source (before the shift)</h2>
+      <div class="original">The Cellar Moth (Tinea sedentaria)
+
+Found only in buildings with an unlit cellar and a working lamp left on
+through winter, the cellar moth spends its whole life within four walls
+of stone and never once meets open weather. Each wing carries a fine
+coat of dust the color of the shelf it hatches beneath, so that a
+specimen at rest is nearly impossible to find until it moves. The moth
+is drawn not to flame itself but to the warmth carried by a nearby
+wick, and will circle a lit lamp for hours without ever touching the
+glass. Eggs are laid in a folded thread of old cobweb tucked behind a
+loose nail or wedged into the hinge of an unused drawer; the larva
+feeds on the dust of the jar it hatches near, and needs no other food
+its whole short life. A coin left on a low ledge will sometimes gather
+three or four eggs by spring, drawn perhaps to the residue of a hand.
+The adult moth lives four days, lays once, and is gone by the second
+frost, leaving behind only a scatter of ash-fine wing scale on the
+floor no one sweeps.</div>
+
+      <h2>The full mapping (N=7)</h2>
+      <table class="mapping">
+        <tr><td>ash</td><td class="arrow">&rarr;</td><td>belt</td></tr>
+        <tr><td>cellar</td><td class="arrow">&rarr;</td><td>cork</td></tr>
+        <tr><td>coin</td><td class="arrow">&rarr;</td><td>drain</td></tr>
+        <tr><td>drawer</td><td class="arrow">&rarr;</td><td>funnel</td></tr>
+        <tr><td>dust</td><td class="arrow">&rarr;</td><td>gate</td></tr>
+        <tr><td>floor</td><td class="arrow">&rarr;</td><td>hinge</td></tr>
+        <tr><td>frost</td><td class="arrow">&rarr;</td><td>hook</td></tr>
+        <tr><td>glass</td><td class="arrow">&rarr;</td><td>key</td></tr>
+        <tr><td>hinge</td><td class="arrow">&rarr;</td><td>lamp</td></tr>
+        <tr><td>jar</td><td class="arrow">&rarr;</td><td>latch</td></tr>
+        <tr><td>lamp</td><td class="arrow">&rarr;</td><td>mat</td></tr>
+        <tr><td>larva</td><td class="arrow">&rarr;</td><td>moth</td></tr>
+        <tr><td>ledge</td><td class="arrow">&rarr;</td><td>needle</td></tr>
+        <tr><td>moth</td><td class="arrow">&rarr;</td><td>pipe</td></tr>
+        <tr><td>nail</td><td class="arrow">&rarr;</td><td>plank</td></tr>
+        <tr><td>scale</td><td class="arrow">&rarr;</td><td>spade</td></tr>
+        <tr><td>shelf</td><td class="arrow">&rarr;</td><td>stair</td></tr>
+        <tr><td>thread</td><td class="arrow">&rarr;</td><td>valve</td></tr>
+        <tr><td>wick</td><td class="arrow">&rarr;</td><td>apron</td></tr>
+        <tr><td>wing</td><td class="arrow">&rarr;</td><td>awl</td></tr>
+      </table>
+      <p>Twenty targets, two chains worth naming exactly rather than
+      approximately: <code>larva &rarr; moth</code>, and
+      <code>moth</code> is itself one of the twenty targets, shifting on
+      to <code>pipe</code> &mdash; so the source's creature name and the
+      thing its own larva turns into, under the same fixed rule, end up
+      sharing a word for one clause and then diverging. Separately,
+      <code>floor &rarr; hinge</code>, and <code>hinge</code> is also a
+      target, shifting on to <code>lamp</code>. Counted directly in the
+      finished card: &ldquo;pipe&rdquo; appears four times (every
+      occurrence of the source's own <code>moth</code>), &ldquo;moth&rdquo;
+      once (<code>larva</code>'s shift), &ldquo;hinge&rdquo; once
+      (<code>floor</code>'s shift), &ldquo;lamp&rdquo; once
+      (<code>hinge</code>'s own shift, plus the source's <code>lamp</code>
+      instances, which shift on to <code>mat</code> instead &mdash; the
+      chain and the plain word never merge). No other pair among the
+      twenty targets shares this property. Nothing in the rule caused it
+      on purpose; it is where two independent shifts happened to land,
+      and the mapping table above lets anyone confirm that without
+      taking this paragraph's word for it.</p>
+    </div>
+  </details>
+</div>
+
+</body>
+</html>
