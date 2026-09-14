@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Line You Actually Drew</title>
+<style>
+  :root { color-scheme: light; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #eeeae1;
+    color: #201d19;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  main {
+    max-width: 720px;
+    margin: 48px auto;
+    padding: 0 24px 64px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: normal;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+  p.instructions {
+    font-size: 14px;
+    color: #55504a;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  #board {
+    display: block;
+    width: 100%;
+    height: 420px;
+    background: #f7f4ec;
+    border: 1px solid #b9b2a4;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  #reading {
+    margin-top: 20px;
+    min-height: 90px;
+  }
+  #reading .line {
+    font-size: 19px;
+    line-height: 1.5;
+  }
+  #reading .numbers {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #55504a;
+    margin-top: 8px;
+  }
+  #reading .empty {
+    color: #8a8478;
+    font-size: 14px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Line You Actually Drew</h1>
+  <p class="instructions">
+    Press down anywhere on the panel below, drag, and let go. One line.
+    Drawing again replaces it.
+  </p>
+  <canvas id="board" width="800" height="420"></canvas>
+  <div id="reading">
+    <div class="empty">Nothing drawn yet.</div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var canvas = document.getElementById('board');
+  var ctx = canvas.getContext('2d');
+  var reading = document.getElementById('reading');
+  var drawing = false;
+  var points = [];
+  var scaleX, scaleY;
+
+  function resizeBacking() {
+    // Canvas has a fixed internal coordinate system (800x420); CSS may
+    // stretch the element, so pointer coordinates are mapped back into
+    // that fixed system rather than read raw.
+    var rect = canvas.getBoundingClientRect();
+    scaleX = canvas.width / rect.width;
+    scaleY = canvas.height / rect.height;
+  }
+  window.addEventListener('resize', resizeBacking);
+
+  function clearBoard() {
+    ctx.fillStyle = '#f7f4ec';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  clearBoard();
+  resizeBacking();
+
+  function pointFromEvent(e) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  function dist(a, b) {
+    var dx = a.x - b.x, dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  canvas.addEventListener('pointerdown', function (e) {
+    resizeBacking();
+    drawing = true;
+    points = [pointFromEvent(e)];
+    clearBoard();
+    ctx.strokeStyle = '#201d19';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    canvas.setPointerCapture(e.pointerId);
+  });
+
+  canvas.addEventListener('pointermove', function (e) {
+    if (!drawing) return;
+    var p = pointFromEvent(e);
+    points.push(p);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  });
+
+  function finish(e) {
+    if (!drawing) return;
+    drawing = false;
+    render();
+  }
+  canvas.addEventListener('pointerup', finish);
+  canvas.addEventListener('pointercancel', finish);
+
+  // Fixed thresholds on the wander ratio (path length / straight-line
+  // displacement). 1.0 is a perfectly straight segment; the ratio climbs
+  // as more of the drawn distance is spent turning rather than arriving.
+  var BANDS = [
+    { max: 1.02, text: "Dead straight. Almost nothing here but travel." },
+    { max: 1.08, text: "Straight enough. One small argument with itself, settled fast." },
+    { max: 1.20, text: "The hand wandered once and came back without much cost." },
+    { max: 1.45, text: "One real deviation in here, and it was corrected, not erased." },
+    { max: 1.90, text: "At least two decisions changed mid-line. Neither one undid the other." },
+    { max: 3.00, text: "More turning than travel. Read this as a knot, not a path." },
+    { max: 6.00, text: "This line has doubled back on itself more than it has gone anywhere." },
+    { max: Infinity, text: "Almost none of this distance was spent arriving. It mostly just occupied the space." }
+  ];
+
+  function bandFor(ratio) {
+    for (var i = 0; i < BANDS.length; i++) {
+      if (ratio <= BANDS[i].max) return BANDS[i].text;
+    }
+    return BANDS[BANDS.length - 1].text;
+  }
+
+  function render() {
+    if (points.length < 2) {
+      reading.innerHTML = '<div class="empty">That was a point, not a line. Try again with a drag.</div>';
+      return;
+    }
+    var pathLength = 0;
+    for (var i = 1; i < points.length; i++) {
+      pathLength += dist(points[i - 1], points[i]);
+    }
+    var start = points[0], end = points[points.length - 1];
+    var displacement = dist(start, end);
+
+    if (displacement < 4) {
+      reading.innerHTML = '<div class="empty">That line ended almost where it began. It has no direction to measure against, so it isn’t measured.</div>';
+      return;
+    }
+
+    var ratio = pathLength / displacement;
+    var text = bandFor(ratio);
+    var lineDiv = document.createElement('div');
+    lineDiv.className = 'line';
+    lineDiv.textContent = text;
+    var numbersDiv = document.createElement('div');
+    numbersDiv.className = 'numbers';
+    numbersDiv.textContent =
+      'path ' + pathLength.toFixed(1) + 'px ÷ displacement ' +
+      displacement.toFixed(1) + 'px = ratio ' + ratio.toFixed(2);
+    reading.innerHTML = '';
+    reading.appendChild(lineDiv);
+    reading.appendChild(numbersDiv);
+  }
+})();
+</script>
+</body>
+</html>
