@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Comb That Never Stops Speeding Up</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    background: #0b0c10; color: #e8e6df; margin: 0; padding: 0;
+    font: 15px/1.5 Georgia, 'Times New Roman', serif;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  main { max-width: 640px; width: 100%; padding: 32px 24px 64px; box-sizing: border-box; }
+  h1 { font-size: 1.3rem; font-weight: normal; letter-spacing: 0.02em; margin-bottom: 0.2em; }
+  .sub { color: #a8a498; font-size: 0.85rem; margin-bottom: 2em; }
+  button {
+    font: inherit; font-size: 0.95rem; background: #1c1e24; color: #e8e6df;
+    border: 1px solid #46433a; border-radius: 3px; padding: 10px 18px;
+    cursor: pointer; margin-right: 10px;
+  }
+  button:hover { background: #262932; }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.active { background: #3a2f1a; border-color: #a8814a; }
+  .controls { margin-bottom: 1.6em; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 0.85rem; }
+  th, td { text-align: right; padding: 3px 10px; border-bottom: 1px solid #22242a; }
+  th:first-child, td:first-child { text-align: left; }
+  .bar-cell { text-align: left; width: 40%; }
+  .bar-track { background: #1a1c22; height: 10px; border-radius: 2px; overflow: hidden; }
+  .bar-fill { background: #a8814a; height: 100%; width: 0%; }
+  .status { color: #a8a498; font-size: 0.8rem; margin-top: 1.2em; min-height: 1.2em; }
+  .total { margin-top: 0.6em; font-size: 0.85rem; color: #c7c2b4; }
+  footer { color: #6b6862; font-size: 0.78rem; margin-top: 2.4em; border-top: 1px solid #22242a; padding-top: 1em; }
+  code { color: #c7c2b4; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Comb That Never Stops Speeding Up</h1>
+  <div class="sub">A Risset rhythm. Requires sound. Press start.</div>
+
+  <div class="controls">
+    <button id="startBtn">Start</button>
+    <button id="stopBtn" disabled>Stop</button>
+    <button id="dirBtn" class="active">Accelerando</button>
+  </div>
+
+  <table id="layerTable">
+    <thead>
+      <tr><th>layer</th><th>rate (Hz)</th><th class="bar-cell">loudness</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div class="total" id="totalReadout"></div>
+  <div class="status" id="status">Silent. Layers will appear here once started.</div>
+
+  <footer>
+    Seven layers of the same noise-click, one octave apart, all climbing
+    (or falling) together under a fixed loudness envelope that depends only
+    on each layer's current rate, never on which layer it is. Every layer
+    fades toward a mathematically silent point exactly as it would cross
+    the edge of the seven-octave band, and reappears an octave away at
+    that same near-silent point. The numbers above update live from the
+    same <code>model.js</code> that schedules the clicks — nothing here is
+    animated separately from what you're hearing. Flipping
+    accelerando/ritardando mid-run does not reset or jump the layers; it
+    only changes which way the shared clock is currently moving.
+  </footer>
+</main>
+
+<script src="model.js"></script>
+<script>
+(function () {
+  "use strict";
+  var N = 7;
+  var BASE_RATE = 1.0;
+  var OCTAVES_PER_SECOND = 1.0 / 8.0;
+  var CLICK_DECAY = 0.045; // seconds
+  var LOOKAHEAD = 0.15;    // seconds scheduled ahead
+  var SCHEDULER_MS = 25;
+
+  var startBtn = document.getElementById("startBtn");
+  var stopBtn = document.getElementById("stopBtn");
+  var dirBtn = document.getElementById("dirBtn");
+  var status = document.getElementById("status");
+  var totalReadout = document.getElementById("totalReadout");
+  var tbody = document.querySelector("#layerTable tbody");
+
+  var direction = 1; // +1 accelerando, -1 ritardando
+  var ctx = null;
+  var noiseBuffer = null;
+  var masterGain = null;
+  var layers = [];
+  var schedulerId = null;
+  var rafId = null;
+
+  // shift(t): total accumulated octave-drift of the whole comb as a
+  // function of audio-clock time t. Tracked as an anchor (shiftAtAnchor,
+  // anchorTime) so that flipping `direction` changes only the slope from
+  // here on, never the value at the moment of the flip — no layer jumps
+  // or resets when you hit the toggle mid-run.
+  var shiftAtAnchor = 0;
+  var anchorTime = 0;
+
+  function shiftAt(t) {
+    return shiftAtAnchor + direction * OCTAVES_PER_SECOND * (t - anchorTime);
+  }
+
+  function reanchor(t) {
+    shiftAtAnchor = shiftAt(t);
+    anchorTime = t;
+  }
+
+  for (var i = 0; i < N; i++) {
+    var row = document.createElement("tr");
+    row.innerHTML =
+      '<td>' + i + '</td>' +
+      '<td class="rate">-</td>' +
+      '<td class="bar-cell"><div class="bar-track"><div class="bar-fill"></div></div></td>';
+    tbody.appendChild(row);
+  }
+
+  function makeNoiseBuffer(ctx) {
+    var length = Math.round(ctx.sampleRate * 0.05);
+    var buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var n = 0; n < length; n++) data[n] = Math.random() * 2 - 1;
+    return buffer;
+  }
+
+  function scheduleClick(time, peakGain) {
+    var src = ctx.createBufferSource();
+    src.buffer = noiseBuffer;
+    var g = ctx.createGain();
+    var safePeak = Math.max(peakGain, 0.00001);
+    g.gain.setValueAtTime(safePeak, time);
+    g.gain.exponentialRampToValueAtTime(0.00001, time + CLICK_DECAY);
+    src.connect(g).connect(masterGain);
+    src.start(time);
+    src.stop(time + CLICK_DECAY + 0.02);
+  }
+
+  function tick() {
+    var now = ctx.currentTime;
+    for (var i = 0; i < N; i++) {
+      var layer = layers[i];
+      while (layer.nextTime < now + LOOKAHEAD) {
+        var s = shiftAt(layer.nextTime);
+        var gain = window.RissetModel.gainForLayer(s, i, N);
+        var rate = window.RissetModel.rateForLayer(s, i, N, BASE_RATE);
+        scheduleClick(layer.nextTime, gain * 0.9);
+        layer.nextTime += 1 / rate;
+      }
+    }
+  }
+
+  function draw() {
+    if (!ctx) return;
+    var s = shiftAt(ctx.currentTime);
+    var rows = tbody.querySelectorAll("tr");
+    var total = 0;
+    for (var i = 0; i < N; i++) {
+      var rate = window.RissetModel.rateForLayer(s, i, N, BASE_RATE);
+      var gain = window.RissetModel.gainForLayer(s, i, N);
+      total += gain;
+      var row = rows[i];
+      row.querySelector(".rate").textContent = rate.toFixed(2);
+      row.querySelector(".bar-fill").style.width = (gain * 100).toFixed(1) + "%";
+    }
+    totalReadout.textContent =
+      "sum of all seven layers' loudness right now: " + total.toFixed(6) +
+      "  (claimed constant: " + (N / 2).toFixed(6) + ")";
+    rafId = requestAnimationFrame(draw);
+  }
+
+  function start() {
+    if (ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    noiseBuffer = makeNoiseBuffer(ctx);
+    masterGain = ctx.createGain();
+    masterGain.gain.value = 1.0;
+    masterGain.connect(ctx.destination);
+    shiftAtAnchor = 0;
+    anchorTime = ctx.currentTime;
+    layers = [];
+    for (var i = 0; i < N; i++) layers.push({ nextTime: ctx.currentTime });
+    schedulerId = setInterval(tick, SCHEDULER_MS);
+    draw();
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    status.textContent = "Running. Listen for the seam: nothing pops when a layer wraps.";
+  }
+
+  function stop() {
+    if (schedulerId) clearInterval(schedulerId);
+    if (rafId) cancelAnimationFrame(rafId);
+    schedulerId = null;
+    rafId = null;
+    if (ctx) {
+      ctx.close();
+      ctx = null;
+    }
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    status.textContent = "Stopped.";
+  }
+
+  dirBtn.addEventListener("click", function () {
+    if (ctx) reanchor(ctx.currentTime);
+    direction *= -1;
+    if (direction === 1) {
+      dirBtn.textContent = "Accelerando";
+      dirBtn.classList.add("active");
+    } else {
+      dirBtn.textContent = "Ritardando";
+      dirBtn.classList.remove("active");
+    }
+  });
+
+  startBtn.addEventListener("click", start);
+  stopBtn.addEventListener("click", stop);
+})();
+</script>
+</body>
+</html>
